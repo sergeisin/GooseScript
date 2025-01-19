@@ -1,0 +1,10 @@
+# Build results
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+.vscode/
+
+# NuGet Packages
+packages/
