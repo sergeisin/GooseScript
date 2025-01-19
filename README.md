@@ -1,0 +1,2 @@
+# GooseScript
+Goose publisher
