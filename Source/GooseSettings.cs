@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace GooseScript
 {
@@ -12,7 +13,7 @@ namespace GooseScript
         /// <summary>
         /// Destination MAC-address (last two octets in range 0x0000 .. 0x03FF)
         /// </summary>
-        public ushort dstMac = 0x0001;
+        public ushort dstMac;
 
         /// <summary>
         /// Adding VLan tag to Goose frame
@@ -69,14 +70,47 @@ namespace GooseScript
         /// </summary>
         public uint TAL;
 
-        internal void Validate()
+        public void Validate()
         {
-            if (goId.Length > 129)
+            if (dstMac > 0x03FF)
             {
-                throw new ArgumentException($"GoID max length is 129 characters");
+                throw new ArgumentException("The valid range for the 'dstMac' is from 0 to 3FF");
             }
 
-            // Not Implemented
+            if (vlanID > 0x0FFF)
+            {
+                throw new ArgumentException("The valid range for the 'vlanID' is from 0 to FFF");
+            }
+
+            if (gocbRef is null)
+            {
+                throw new ArgumentException("The value 'gocbRef' cannot be null");
+            }
+
+            if (gocbRef.Length > 129)
+            {
+                throw new ArgumentException("'gocbRef' max length is 129 characters");
+            }
+
+            if (datSet is null)
+            {
+                throw new ArgumentException("The value 'datSet' cannot be null");
+            }
+
+            if (datSet.Length > 129)
+            {
+                throw new ArgumentException("'datSet' max length is 129 characters");
+            }
+
+            if (goId is null)
+            {
+                throw new ArgumentException("The value 'goId' cannot be null");
+            }
+
+            if (goId.Length > 129)
+            {
+                throw new ArgumentException("'goId' max length is 129 characters");
+            }
         }
     }
 }

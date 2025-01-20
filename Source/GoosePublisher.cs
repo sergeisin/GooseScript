@@ -35,7 +35,7 @@ namespace GooseScript
 
         public GoosePublisher(GooseSettings settings)
         {
-            //settings.Validate();
+            settings.Validate();
             _settings = settings;
 
             switch (Value)
@@ -196,10 +196,10 @@ namespace GooseScript
             _timeTicks = DateTime.UtcNow.Ticks - epochTicks;
         }
 
+        public uint AppID   { get; set; }
         public uint TAL     { get; set; }
         public uint ConfRev { get; set; }
         public bool NdsCom  { get; set; }
-        public uint AppID   { get; set; }
 
         public bool Simulation_Reserved { get; set; }
         public bool Simulation_GoosePDU { get; set; }
@@ -207,7 +207,7 @@ namespace GooseScript
         {
             get
             {
-                return Simulation_GoosePDU || Simulation_GoosePDU;
+                return Simulation_Reserved || Simulation_GoosePDU;
             }
 
             set

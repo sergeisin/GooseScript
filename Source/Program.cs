@@ -8,7 +8,7 @@ namespace GooseScript
         [STAThread]
         static void Main()
         {
-            var publisher = new GoosePublisher<int>(new GooseSettings()
+            var publisher = new GoosePublisher<bool>(new GooseSettings()
             {
                 interfaceName = "Ethernet 3",
 
@@ -25,7 +25,7 @@ namespace GooseScript
                 TAL = 200
             });
 
-            publisher.Value = 42;
+            publisher.Value = true;
 
             //Application.EnableVisualStyles();
             //Application.SetCompatibleTextRenderingDefault(false);
