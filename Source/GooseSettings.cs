@@ -10,11 +10,6 @@ namespace GooseScript
         public string interfaceName;
 
         /// <summary>
-        /// Destination MAC-address full string
-        /// </summary>
-        public string dstMacStr;
-
-        /// <summary>
         /// Destination MAC-address (last two octets in range 0x0000 .. 0x03FF)
         /// </summary>
         public ushort dstMac = 0x0001;
@@ -74,14 +69,14 @@ namespace GooseScript
         /// </summary>
         public uint TAL;
 
-        /// <summary>
-        /// Initial value
-        /// </summary>
-        public bool value;
+        internal void Validate()
+        {
+            if (goId.Length > 129)
+            {
+                throw new ArgumentException($"GoID max length is 129 characters");
+            }
 
-        /// <summary>
-        /// Initial quality
-        /// </summary>
-        public Quality quality;
+            // Not Implemented
+        }
     }
 }
