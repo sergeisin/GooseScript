@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Forms;
 
 namespace GooseScript
 {
@@ -26,10 +25,6 @@ namespace GooseScript
             });
 
             publisher.Value = true;
-
-            //Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new MainForm());
         }
     }
 }
