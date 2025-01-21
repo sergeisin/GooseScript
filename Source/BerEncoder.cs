@@ -61,19 +61,24 @@ namespace GooseScript
             return buffer;
         }
 
-        public static void Encode_TL(Span<byte> frame, ref int offset, byte tag, int len)
+        public static void Encode_TL_Only(Span<byte> frame, ref int offset, byte tag, int len)
         {
+            int sizeof_TAG = 1;
+            int sizeof_LEN = GetEncoded_L_Size(len);
+
             throw new NotImplementedException();
         }
 
-        public static void Encode_RawBytes(Span<byte> frame, ref int offset, ReadOnlySpan<byte> src)
+        public static void Encode_RawBytes(Span<byte> frame, ref int offset, ReadOnlySpan<byte> src, int count = 0)
         {
-            for (int i = 0; i < src.Length; i++)
+            int iterations = count != 0 ? count : src.Length;
+
+            for (int i = 0; i < iterations; i++)
             {
                 frame[offset + i] = src[i];
             }
 
-            offset += src.Length;
+            offset += iterations;
         }
 
         public static void Encode_INT32U_TLV(Span<byte> frame, ref int offset, byte tag, uint value)
@@ -116,6 +121,11 @@ namespace GooseScript
         }
 
         public static void Encode_INT32_TLV(Span<byte> frame, ref int offset, byte tag, int value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void Encode_FLOAT_TLV(Span<byte> frame, ref int offset, byte tag, float value)
         {
             throw new NotImplementedException();
         }
@@ -165,7 +175,7 @@ namespace GooseScript
             frame[offset++] = b2;
         }
 
-        public static void Encode_TimeStamp_TLV(Span<byte> frame, ref int offset, byte tag, long ticks)
+        public static void Encode_TimeSt_TLV(Span<byte> frame, ref int offset, byte tag, long ticks)
         {
             long seconds = ticks / 10000000;
             long fractions = 0xFFFFFFFF * (ticks % 10000000) / 10000000 + 1;

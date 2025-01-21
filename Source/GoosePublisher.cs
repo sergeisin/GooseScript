@@ -73,6 +73,7 @@ namespace GooseScript
         public void Send()
         {
             int payloadSize = GetPayloadSize();
+            int gooseLength = 9 + BerEncoder.GetEncoded_L_Size(payloadSize) + payloadSize;
 
             Span<byte> frame = stackalloc byte[512];
             int offset = 0;
@@ -85,40 +86,33 @@ namespace GooseScript
             frame[offset++] = (byte)(AppID & 0xFF);
 
             // Gooose.Length
-            frame[offset++] = 0x00;     // Not Implemented
-            frame[offset++] = 0x00;     // Not Implemented
+            frame[offset++] = (byte)(gooseLength >> 8);
+            frame[offset++] = (byte)(gooseLength & 0xFF);
 
             // Goose.Reserveed
             if (Simulation_Reserved)
                 frame[offset] = 0x80;
             offset += 4;
 
-            // Goose.goosePDU
-            frame[offset++] = (byte)ASN1_Tag.goosePDU;
-            // Not Implemented
-            // Not Implemented
-
-            BerEncoder.Encode_RawBytes(frame, ref offset, _raw_GoCbRef);
-            BerEncoder.Encode_INT32U_TLV (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, TAL);
-            BerEncoder.Encode_RawBytes(frame, ref offset, _raw_DatSet);
-            BerEncoder.Encode_RawBytes(frame, ref offset, _raw_GoId);
-
-            BerEncoder.Encode_TimeStamp_TLV(frame, ref offset, (byte)ASN1_Tag.TimeStamp,  _timeTicks);
-            BerEncoder.Encode_INT32U_TLV(frame, ref offset, (byte)ASN1_Tag.stNum,      _stNum);
-            BerEncoder.Encode_INT32U_TLV(frame, ref offset, (byte)ASN1_Tag.sqNum,      _sqNum);
-            BerEncoder.Encode_Boolean_TLV(frame, ref offset, (byte)ASN1_Tag.simulation, Simulation_GoosePDU);
-            BerEncoder.Encode_INT32U_TLV(frame, ref offset, (byte)ASN1_Tag.confRev,    ConfRev);
-            BerEncoder.Encode_Boolean_TLV(frame, ref offset, (byte)ASN1_Tag.ndsCom,     NdsCom);
+            // BER encoed
+            BerEncoder.Encode_TL_Only     (frame, ref offset, (byte)ASN1_Tag.goosePDU, payloadSize);
+            BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoCbRef);
+            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, TAL);
+            BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_DatSet);
+            BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoId);
+            BerEncoder.Encode_TimeSt_TLV  (frame, ref offset, (byte)ASN1_Tag.TimeStamp,  _timeTicks);
+            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.stNum,      _stNum);
+            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.sqNum,      _sqNum);
+            BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.simulation, Simulation_GoosePDU);
+            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.confRev,    ConfRev);
+            BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.ndsCom,     NdsCom);
 
             frame[offset++] = (byte)ASN1_Tag.numDatSetEntries;
             frame[offset++] = 0x01;
             frame[offset++] = 0x02;
 
-            frame[offset++] = (byte)ASN1_Tag.allData;
-            // Not Implemented
-
-            // Add MMS_TYPE Value
-            // Add Quality
+            BerEncoder.Encode_TL_Only  (frame, ref offset, (byte)ASN1_Tag.allData, _DatSet_Size);
+            BerEncoder.Encode_RawBytes (frame, ref offset, _DatSet_Buffer, _DatSet_Size);
 
             // Send
             _device.SendPacket(frame.Slice(0, offset));
@@ -222,7 +216,8 @@ namespace GooseScript
                     break;
 
                 case MMS_TYPE.FLOAT32:
-                    throw new NotImplementedException();
+                    BerEncoder.Encode_FLOAT_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToSingle(_value));
+                    break;
 
                 default:
                     throw new NotImplementedException();
