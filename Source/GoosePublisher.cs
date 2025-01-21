@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using SharpPcap;
 using SharpPcap.LibPcap;
 
@@ -52,9 +51,9 @@ namespace GooseScript
             OpenDevice();
             MakeHeader();
 
-            _raw_GoCbRef  = GooseEncoder.GetTriplet((byte)ASN1_Tag.goCBRef, Encoding.ASCII.GetBytes(settings.gocbRef));
-            _raw_DatSet   = GooseEncoder.GetTriplet((byte)ASN1_Tag.dataSet, Encoding.ASCII.GetBytes(settings.datSet));
-            _raw_GoId     = GooseEncoder.GetTriplet((byte)ASN1_Tag.goID,    Encoding.ASCII.GetBytes(settings.goId));
+            _raw_GoCbRef  = GooseEncoder.GetEncodedTLV((byte)ASN1_Tag.goCBRef, settings.gocbRef);
+            _raw_DatSet   = GooseEncoder.GetEncodedTLV((byte)ASN1_Tag.dataSet, settings.datSet);
+            _raw_GoId     = GooseEncoder.GetEncodedTLV((byte)ASN1_Tag.goID,    settings.goId);
 
             AppID   = settings.appID;
             TAL     = settings.TAL;

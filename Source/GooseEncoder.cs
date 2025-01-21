@@ -1,31 +1,55 @@
 ﻿using System;
+using System.Text;
 
 namespace GooseScript
 {
     internal static class GooseEncoder
     {
-        public static byte[] GetTriplet(byte tag, byte[] data)
+        public static int BerEncoded_L_Size(int length)
         {
-            int lenBytes = data.Length < 0x80 ? 2 : 3;
+            if (length < 0x80)      // Short define form
+                return 1;           // [00 .. 7f]
 
-            byte[] result = new byte[data.Length + lenBytes];
-
-            result[0] = tag;
-
-            if (lenBytes == 2)
-            {
-                result[1] = (byte)data.Length;
-            }
+            if (length < 0x100)     // Long define form
+                return 2;           // 81 + [80 .. ff]
             else
+                return 3;           // 82 + [01 00 .. ff ff]
+        }
+
+        public static byte[] GetEncodedTLV(byte tag, string str)
+        {
+            byte[] data = Encoding.ASCII.GetBytes(str);
+
+            int sizeof_TAG = 1;
+            int sizeof_LEN = BerEncoded_L_Size(data.Length);
+            int sizeof_VAL = data.Length;
+
+            var buffer = new byte[sizeof_TAG + sizeof_LEN + sizeof_VAL];
+            int bufPos = 0;
+
+            buffer[bufPos++] = tag;
+
+            switch (sizeof_LEN)
             {
-                result[1] = 0x81;
-                result[2] = (byte)data.Length;
+                case 1:
+                    buffer[bufPos++] = (byte)sizeof_VAL;
+                    break;
+
+                case 2:
+                    buffer[bufPos++] = 0x81;
+                    buffer[bufPos++] = (byte)sizeof_VAL;
+                    break;
+
+                case 3:
+                    buffer[bufPos++] = 0x82;
+                    buffer[bufPos++] = (byte)(sizeof_VAL >> 8);
+                    buffer[bufPos++] = (byte)(sizeof_VAL & 0xFF);
+                    break;
             }
 
-            for (int i = 0; i < data.Length; i++)
-                result[i + lenBytes] = data[i];
+            Array.Copy(data, 0, buffer, bufPos, data.Length);
 
-            return result;
+            return buffer;
         }
 
         public static uint GetBerSize(uint value)
@@ -35,11 +59,6 @@ namespace GooseScript
             if (value >     0x7FFF) return 3;
             if (value >       0x7F) return 2;
                                     return 1;
-        }
-
-        public static uint GetBerSize(int value)
-        {
-            throw new NotImplementedException();
         }
 
         public static void AddRawBytes(Span<byte> frame, ref int offset, ReadOnlySpan<byte> src)
