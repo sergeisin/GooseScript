@@ -52,7 +52,10 @@ namespace GooseScript
             return buffer;
         }
 
-        public static uint GetBerSize(uint value)
+        public static int TestFunc(bool bVal) => 1;
+        public static int TestFunc(uint uVal) => 1;
+
+        public static int GetBerSize(uint value)
         {
             if (value > 0x7FFFFFFF) return 5;
             if (value >   0x7FFFFF) return 4;

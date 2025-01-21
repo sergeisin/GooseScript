@@ -40,7 +40,6 @@ namespace GooseScript
             switch (Value)
             {
                 case bool  _: _mmsType = MMS_TYPE.BOOLEAN; break;
-                case int   _: _mmsType = MMS_TYPE.INT32;   break;
                 case uint  _: _mmsType = MMS_TYPE.INT32U;  break;
                 case float _: _mmsType = MMS_TYPE.FLOAT32; break;
 
@@ -68,6 +67,31 @@ namespace GooseScript
 
         public void Send()
         {
+            int test = GooseEncoder.TestFunc((T)_value);
+
+            //switch (_mmsType)
+            //{
+            //    case MMS_TYPE.BOOLEAN:
+            //        encodedValueSize += 1;
+            //        break;
+
+            //    case MMS_TYPE.INT32U:
+            //        encodedValueSize += GooseEncoder.GetBerSize(_value);
+            //        break;
+
+            //    case MMS_TYPE.FLOAT32:
+            //        encodedValueSize += 4;
+            //        break;
+            //}
+
+
+
+
+
+
+
+
+
             Span<byte> frame = stackalloc byte[512];
             int offset = 0;
 
@@ -216,9 +240,9 @@ namespace GooseScript
             }
         }
 
-        private T _value;
+        private T        _value;
         private MMS_TYPE _mmsType;
-        private Quality _quality;
+        private Quality  _quality;
 
         private uint _stNum = 0;
         private uint _sqNum = 0;
