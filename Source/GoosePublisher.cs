@@ -39,9 +39,11 @@ namespace GooseScript
 
             switch (Value)
             {
-                case bool  _: _mmsType = MMS_TYPE.BOOLEAN; break;
-                case uint  _: _mmsType = MMS_TYPE.INT32U;  break;
-                case float _: _mmsType = MMS_TYPE.FLOAT32; break;
+                case bool   _: _mmsType = MMS_TYPE.BOOLEAN; break;
+                case int    _: _mmsType = MMS_TYPE.INT32;   break;
+                case uint   _: _mmsType = MMS_TYPE.INT32U;  break;
+                case float  _: _mmsType = MMS_TYPE.FLOAT32; break;
+                case double _: _mmsType = MMS_TYPE.FLOAT32; break;
 
                 default:
                     throw new NotImplementedException($"Type '{typeof(T).Name}' is not implemented!");
@@ -50,9 +52,9 @@ namespace GooseScript
             OpenDevice();
             MakeHeader();
 
-            _raw_GoCbRef  = GooseEncoder.GetEncodedTLV((byte)ASN1_Tag.goCBRef, settings.gocbRef);
-            _raw_DatSet   = GooseEncoder.GetEncodedTLV((byte)ASN1_Tag.dataSet, settings.datSet);
-            _raw_GoId     = GooseEncoder.GetEncodedTLV((byte)ASN1_Tag.goID,    settings.goId);
+            _raw_GoCbRef  = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.goCBRef, settings.gocbRef);
+            _raw_DatSet   = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.dataSet, settings.datSet);
+            _raw_GoId     = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.goID,    settings.goId);
 
             AppID   = settings.appID;
             TAL     = settings.TAL;
@@ -61,42 +63,22 @@ namespace GooseScript
 
             Simulation_Reserved = settings.simulation_reserved;
             Simulation_GoosePDU = settings.simulation_goosePdu;
-            
+
+            // Reserved for AllData - [stVal + q]
+            _DatSet_Buffer = new byte[16];
+
             UpdateState();
         }
 
         public void Send()
         {
-            int test = GooseEncoder.TestFunc((T)_value);
-
-            //switch (_mmsType)
-            //{
-            //    case MMS_TYPE.BOOLEAN:
-            //        encodedValueSize += 1;
-            //        break;
-
-            //    case MMS_TYPE.INT32U:
-            //        encodedValueSize += GooseEncoder.GetBerSize(_value);
-            //        break;
-
-            //    case MMS_TYPE.FLOAT32:
-            //        encodedValueSize += 4;
-            //        break;
-            //}
-
-
-
-
-
-
-
-
+            int payloadSize = GetPayloadSize();
 
             Span<byte> frame = stackalloc byte[512];
             int offset = 0;
 
             // Ethernet header
-            GooseEncoder.AddRawBytes(frame, ref offset, _raw_Ethernet);
+            BerEncoder.Encode_RawBytes(frame, ref offset, _raw_Ethernet);
 
             // Goose.AppID
             frame[offset++] = (byte)(AppID >> 8);
@@ -116,17 +98,17 @@ namespace GooseScript
             // Not Implemented
             // Not Implemented
 
-            GooseEncoder.AddRawBytes(frame, ref offset, _raw_GoCbRef);
-            GooseEncoder.AddUintTLV (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, TAL);
-            GooseEncoder.AddRawBytes(frame, ref offset, _raw_DatSet);
-            GooseEncoder.AddRawBytes(frame, ref offset, _raw_GoId);
+            BerEncoder.Encode_RawBytes(frame, ref offset, _raw_GoCbRef);
+            BerEncoder.Encode_INT32U_TLV (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, TAL);
+            BerEncoder.Encode_RawBytes(frame, ref offset, _raw_DatSet);
+            BerEncoder.Encode_RawBytes(frame, ref offset, _raw_GoId);
 
-            GooseEncoder.AddTimeTLV(frame, ref offset, (byte)ASN1_Tag.TimeStamp,  _timeTicks);
-            GooseEncoder.AddUintTLV(frame, ref offset, (byte)ASN1_Tag.stNum,      _stNum);
-            GooseEncoder.AddUintTLV(frame, ref offset, (byte)ASN1_Tag.sqNum,      _sqNum);
-            GooseEncoder.AddBoolTLV(frame, ref offset, (byte)ASN1_Tag.simulation, Simulation_GoosePDU);
-            GooseEncoder.AddUintTLV(frame, ref offset, (byte)ASN1_Tag.confRev,    ConfRev);
-            GooseEncoder.AddBoolTLV(frame, ref offset, (byte)ASN1_Tag.ndsCom,     NdsCom);
+            BerEncoder.Encode_TimeStamp_TLV(frame, ref offset, (byte)ASN1_Tag.TimeStamp,  _timeTicks);
+            BerEncoder.Encode_INT32U_TLV(frame, ref offset, (byte)ASN1_Tag.stNum,      _stNum);
+            BerEncoder.Encode_INT32U_TLV(frame, ref offset, (byte)ASN1_Tag.sqNum,      _sqNum);
+            BerEncoder.Encode_Boolean_TLV(frame, ref offset, (byte)ASN1_Tag.simulation, Simulation_GoosePDU);
+            BerEncoder.Encode_INT32U_TLV(frame, ref offset, (byte)ASN1_Tag.confRev,    ConfRev);
+            BerEncoder.Encode_Boolean_TLV(frame, ref offset, (byte)ASN1_Tag.ndsCom,     NdsCom);
 
             frame[offset++] = (byte)ASN1_Tag.numDatSetEntries;
             frame[offset++] = 0x01;
@@ -212,11 +194,84 @@ namespace GooseScript
 
         private void UpdateState()
         {
+            MakeDataSet();
+
             _stNum = (_sqNum == uint.MaxValue) ? 1 : _stNum + 1;
             _sqNum = 0;
 
             long epochTicks = 621355968000000000;
             _timeTicks = DateTime.UtcNow.Ticks - epochTicks;
+        }
+
+        private void MakeDataSet()
+        {
+            _DatSet_Size = 0;
+
+            switch (_mmsType)
+            {
+                case MMS_TYPE.BOOLEAN:
+                    BerEncoder.Encode_Boolean_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToBoolean(_value));
+                    break;
+
+                case MMS_TYPE.INT32:
+                    BerEncoder.Encode_INT32_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToInt32(_value));
+                    break;
+
+                case MMS_TYPE.INT32U:
+                    BerEncoder.Encode_INT32U_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToUInt32(_value));
+                    break;
+
+                case MMS_TYPE.FLOAT32:
+                    throw new NotImplementedException();
+
+                default:
+                    throw new NotImplementedException();
+            }
+
+            BerEncoder.Encode_Quality_TLV(_DatSet_Buffer, ref _DatSet_Size, _quality);
+        }
+
+        private int GetPayloadSize()
+        {
+            int payloadSize = 0;
+
+            // Encoded AllData size
+            payloadSize += (2 + _DatSet_Size);
+
+            // Encoded NumDataSetEntries size
+            payloadSize += 3;
+
+            // Encoded NdsCom size
+            payloadSize += 3;
+
+            // Encoded ConfRev size
+            payloadSize += (2 + BerEncoder.GetEncoded_V_Size(ConfRev));
+
+            // Encoded Simulation size
+            payloadSize += 3;
+
+            // Encoded sqNum size
+            payloadSize += (2 + BerEncoder.GetEncoded_V_Size(_sqNum));
+
+            // Encoded stNum size
+            payloadSize += (2 + BerEncoder.GetEncoded_V_Size(_stNum));
+
+            // Encoded TimeStamp size
+            payloadSize += 10;
+
+            // Encoded GoID size
+            payloadSize += _raw_GoId.Length;
+
+            // Encoded datSet size
+            payloadSize += _raw_DatSet.Length;
+
+            // Encoded TAL size
+            payloadSize += (2 + BerEncoder.GetEncoded_V_Size(TAL));
+
+            // Encoded goCbRef size
+            payloadSize += _raw_GoCbRef.Length;
+
+            return payloadSize;
         }
 
         public uint AppID   { get; set; }
@@ -252,6 +307,9 @@ namespace GooseScript
         private byte[] _raw_GoCbRef;
         private byte[] _raw_DatSet;
         private byte[] _raw_GoId;
+
+        private byte[] _DatSet_Buffer;
+        private int    _DatSet_Size;
 
         private GooseSettings _settings;
         private LibPcapLiveDevice _device;

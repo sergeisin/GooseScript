@@ -3,9 +3,18 @@ using System.Text;
 
 namespace GooseScript
 {
-    internal static class GooseEncoder
+    internal static class BerEncoder
     {
-        public static int BerEncoded_L_Size(int length)
+        public static int GetEncoded_V_Size(uint value)
+        {
+            if (value > 0x7FFFFFFF) return 5;
+            if (value >   0x7FFFFF) return 4;
+            if (value >     0x7FFF) return 3;
+            if (value >       0x7F) return 2;
+                                    return 1;
+        }
+
+        public static int GetEncoded_L_Size(int length)
         {
             if (length < 0x80)      // Short define form
                 return 1;           // [00 .. 7f]
@@ -21,7 +30,7 @@ namespace GooseScript
             byte[] data = Encoding.ASCII.GetBytes(str);
 
             int sizeof_TAG = 1;
-            int sizeof_LEN = BerEncoded_L_Size(data.Length);
+            int sizeof_LEN = GetEncoded_L_Size(data.Length);
             int sizeof_VAL = data.Length;
 
             var buffer = new byte[sizeof_TAG + sizeof_LEN + sizeof_VAL];
@@ -52,19 +61,12 @@ namespace GooseScript
             return buffer;
         }
 
-        public static int TestFunc(bool bVal) => 1;
-        public static int TestFunc(uint uVal) => 1;
-
-        public static int GetBerSize(uint value)
+        public static void Encode_TL(Span<byte> frame, ref int offset, byte tag, int len)
         {
-            if (value > 0x7FFFFFFF) return 5;
-            if (value >   0x7FFFFF) return 4;
-            if (value >     0x7FFF) return 3;
-            if (value >       0x7F) return 2;
-                                    return 1;
+            throw new NotImplementedException();
         }
 
-        public static void AddRawBytes(Span<byte> frame, ref int offset, ReadOnlySpan<byte> src)
+        public static void Encode_RawBytes(Span<byte> frame, ref int offset, ReadOnlySpan<byte> src)
         {
             for (int i = 0; i < src.Length; i++)
             {
@@ -74,11 +76,11 @@ namespace GooseScript
             offset += src.Length;
         }
 
-        public static void AddUintTLV(Span<byte> frame, ref int offset, byte tag, uint value)
+        public static void Encode_INT32U_TLV(Span<byte> frame, ref int offset, byte tag, uint value)
         {
             frame[offset++] = tag;
 
-            switch (GetBerSize(value))
+            switch (GetEncoded_V_Size(value))
             {
                 case 1:
                     frame[offset++] = 0x01;
@@ -113,7 +115,12 @@ namespace GooseScript
             }
         }
 
-        public static void AddBoolTLV(Span<byte> frame, ref int offset, byte tag, bool value)
+        public static void Encode_INT32_TLV(Span<byte> frame, ref int offset, byte tag, int value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void Encode_Boolean_TLV(Span<byte> frame, ref int offset, byte tag, bool value)
         {
             frame[offset++] = tag;
             frame[offset++] = 0x01;
@@ -124,7 +131,7 @@ namespace GooseScript
                 frame[offset++] = 0x00;
         }
 
-        public static void AddQualityTLV(Span<byte> frame, ref int offset, Quality q)
+        public static void Encode_Quality_TLV(Span<byte> frame, ref int offset, Quality q)
         {
             frame[offset++] = 0x84;
             frame[offset++] = 0x03;
@@ -158,7 +165,7 @@ namespace GooseScript
             frame[offset++] = b2;
         }
 
-        public static void AddTimeTLV(Span<byte> frame, ref int offset, byte tag, long ticks)
+        public static void Encode_TimeStamp_TLV(Span<byte> frame, ref int offset, byte tag, long ticks)
         {
             long seconds = ticks / 10000000;
             long fractions = 0xFFFFFFFF * (ticks % 10000000) / 10000000 + 1;

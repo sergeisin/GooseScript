@@ -78,7 +78,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\GooseEncoder.cs" />
+    <Compile Include="Source\BerEncoder.cs" />
     <Compile Include="Source\GoosePublisher.cs" />
     <Compile Include="Source\GooseSettings.cs" />
     <Compile Include="Source\Program.cs" />
