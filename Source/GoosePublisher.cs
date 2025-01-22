@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using SharpPcap;
 using SharpPcap.LibPcap;
 
@@ -153,7 +154,9 @@ namespace GooseScript
             }
 
             if (_device == null)
+            {
                 throw new FormatException($"Interface '{_settings.interfaceName}' not found!");
+            }
         }
 
         private void MakeHeader()

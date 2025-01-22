@@ -61,12 +61,28 @@ namespace GooseScript
             return buffer;
         }
 
-        public static void Encode_TL_Only(Span<byte> frame, ref int offset, byte tag, int len)
+        public static void Encode_TL_Only(Span<byte> frame, ref int offset, byte tag, int length)
         {
-            int sizeof_TAG = 1;
-            int sizeof_LEN = GetEncoded_L_Size(len);
+            frame[offset++] = tag;
+            int sLen = GetEncoded_L_Size(length);
 
-            throw new NotImplementedException();
+            switch (sLen)
+            {
+                case 1:
+                    frame[offset++] = (byte)length;
+                    break;
+
+                case 2:
+                    frame[offset++] = 0x81;
+                    frame[offset++] = (byte)length;
+                    break;
+
+                case 3:
+                    frame[offset++] = 0x82;
+                    frame[offset++] = (byte)(length >> 8);
+                    frame[offset++] = (byte)(length & 0xFF);
+                    break;
+            }
         }
 
         public static void Encode_RawBytes(Span<byte> frame, ref int offset, ReadOnlySpan<byte> src, int count = 0)
@@ -127,7 +143,26 @@ namespace GooseScript
 
         public static void Encode_FLOAT_TLV(Span<byte> frame, ref int offset, byte tag, float value)
         {
-            throw new NotImplementedException();
+            byte[] floatBytes = BitConverter.GetBytes(value);
+
+            frame[offset++] = tag;
+            frame[offset++] = 0x05;
+            frame[offset++] = 0x08;
+
+            if (BitConverter.IsLittleEndian)
+            {
+                for (int i = 3; i >= 0; i--)
+                {
+                    frame[offset++] = floatBytes[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    frame[offset++] = floatBytes[i];
+                }
+            }
         }
 
         public static void Encode_Boolean_TLV(Span<byte> frame, ref int offset, byte tag, bool value)
