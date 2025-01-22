@@ -136,9 +136,43 @@ namespace GooseScript
             }
         }
 
-        public static void Encode_INT32_TLV(Span<byte> frame, ref int offset, byte tag, int value)
+        public static void Encode_INT32S_TLV(Span<byte> frame, ref int offset, byte tag, int value)
         {
-            throw new NotImplementedException();
+            uint uVal;
+            if (value < 0)
+                uVal = uint.MaxValue - (uint)(-value) + 1;
+            else
+                uVal = (uint)value;
+
+            frame[offset++] = tag;
+
+            switch (GetEncoded_V_Size((uint)(value < 0 ? -value : value)))
+            {
+                case 1:
+                    frame[offset++] = 0x01;
+                    frame[offset++] = (byte)(0xFF & value);
+                    break;
+                case 2:
+                    frame[offset++] = 0x02;
+                    frame[offset++] = (byte)(0xFF & value >> 8);
+                    frame[offset++] = (byte)(0xFF & value);
+                    break;
+                case 3:
+                    frame[offset++] = 0x03;
+                    frame[offset++] = (byte)(0xFF & value >> 16);
+                    frame[offset++] = (byte)(0xFF & value >>  8);
+                    frame[offset++] = (byte)(0xFF & value);
+                    break;
+                
+                // 4 or 5
+                default:
+                    frame[offset++] = 0x04;
+                    frame[offset++] = (byte)(0xFF & value >> 24);
+                    frame[offset++] = (byte)(0xFF & value >> 16);
+                    frame[offset++] = (byte)(0xFF & value >>  8);
+                    frame[offset++] = (byte)(0xFF & value);
+                    break;
+            }
         }
 
         public static void Encode_FLOAT_TLV(Span<byte> frame, ref int offset, byte tag, float value)
@@ -215,17 +249,17 @@ namespace GooseScript
             long seconds = ticks / 10000000;
             long fractions = 0xFFFFFFFF * (ticks % 10000000) / 10000000 + 1;
 
-            frame[offset++] = tag;      // Tag
-            frame[offset++] = 0x08;     // Len
+            frame[offset++] = tag;
+            frame[offset++] = 0x08;
 
             frame[offset++] = (byte)(0xFF & seconds >> 24);
             frame[offset++] = (byte)(0xFF & seconds >> 16);
-            frame[offset++] = (byte)(0xFF & seconds >> 8);
+            frame[offset++] = (byte)(0xFF & seconds >>  8);
             frame[offset++] = (byte)(0xFF & seconds);
 
             frame[offset++] = (byte)(0xFF & fractions >> 24);
             frame[offset++] = (byte)(0xFF & fractions >> 16);
-            frame[offset++] = (byte)(0xFF & fractions >> 8);
+            frame[offset++] = (byte)(0xFF & fractions >>  8);
             frame[offset++] = 0x0A;
         }
     }

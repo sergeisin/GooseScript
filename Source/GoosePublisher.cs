@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using SharpPcap;
 using SharpPcap.LibPcap;
 
@@ -73,8 +72,8 @@ namespace GooseScript
 
         public void Send()
         {
-            int payloadSize = GetPayloadSize();
-            int gooseLength = 9 + BerEncoder.GetEncoded_L_Size(payloadSize) + payloadSize;
+            int goosePduSize = GetGoosePduSize();
+            int gooseLength = 9 + BerEncoder.GetEncoded_L_Size(goosePduSize) + goosePduSize;
 
             Span<byte> frame = stackalloc byte[512];
             int offset = 0;
@@ -96,17 +95,17 @@ namespace GooseScript
             offset += 4;
 
             // BER encoed
-            BerEncoder.Encode_TL_Only     (frame, ref offset, (byte)ASN1_Tag.goosePDU, payloadSize);
+            BerEncoder.Encode_TL_Only     (frame, ref offset, (byte)ASN1_Tag.goosePDU, goosePduSize);
             BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoCbRef);
             BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, TAL);
             BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_DatSet);
             BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoId);
-            BerEncoder.Encode_TimeSt_TLV  (frame, ref offset, (byte)ASN1_Tag.TimeStamp,  _timeTicks);
-            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.stNum,      _stNum);
-            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.sqNum,      _sqNum);
+            BerEncoder.Encode_TimeSt_TLV  (frame, ref offset, (byte)ASN1_Tag.TimeStamp, _timeTicks);
+            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.stNum, _stNum);
+            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.sqNum, _sqNum);
             BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.simulation, Simulation_GoosePDU);
-            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.confRev,    ConfRev);
-            BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.ndsCom,     NdsCom);
+            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.confRev, ConfRev);
+            BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.ndsCom, NdsCom);
 
             frame[offset++] = (byte)ASN1_Tag.numDatSetEntries;
             frame[offset++] = 0x01;
@@ -211,7 +210,7 @@ namespace GooseScript
                     break;
 
                 case MMS_TYPE.INT32:
-                    BerEncoder.Encode_INT32_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToInt32(_value));
+                    BerEncoder.Encode_INT32S_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToInt32(_value));
                     break;
 
                 case MMS_TYPE.INT32U:
@@ -229,47 +228,47 @@ namespace GooseScript
             BerEncoder.Encode_Quality_TLV(_DatSet_Buffer, ref _DatSet_Size, _quality);
         }
 
-        private int GetPayloadSize()
+        private int GetGoosePduSize()
         {
-            int payloadSize = 0;
+            int goosePduSize = 0;
 
             // Encoded AllData size
-            payloadSize += (2 + _DatSet_Size);
+            goosePduSize += (2 + _DatSet_Size);
 
             // Encoded NumDataSetEntries size
-            payloadSize += 3;
+            goosePduSize += 3;
 
             // Encoded NdsCom size
-            payloadSize += 3;
+            goosePduSize += 3;
 
             // Encoded ConfRev size
-            payloadSize += (2 + BerEncoder.GetEncoded_V_Size(ConfRev));
+            goosePduSize += (2 + BerEncoder.GetEncoded_V_Size(ConfRev));
 
             // Encoded Simulation size
-            payloadSize += 3;
+            goosePduSize += 3;
 
             // Encoded sqNum size
-            payloadSize += (2 + BerEncoder.GetEncoded_V_Size(_sqNum));
+            goosePduSize += (2 + BerEncoder.GetEncoded_V_Size(_sqNum));
 
             // Encoded stNum size
-            payloadSize += (2 + BerEncoder.GetEncoded_V_Size(_stNum));
+            goosePduSize += (2 + BerEncoder.GetEncoded_V_Size(_stNum));
 
             // Encoded TimeStamp size
-            payloadSize += 10;
+            goosePduSize += 10;
 
             // Encoded GoID size
-            payloadSize += _raw_GoId.Length;
+            goosePduSize += _raw_GoId.Length;
 
             // Encoded datSet size
-            payloadSize += _raw_DatSet.Length;
+            goosePduSize += _raw_DatSet.Length;
 
             // Encoded TAL size
-            payloadSize += (2 + BerEncoder.GetEncoded_V_Size(TAL));
+            goosePduSize += (2 + BerEncoder.GetEncoded_V_Size(TAL));
 
             // Encoded goCbRef size
-            payloadSize += _raw_GoCbRef.Length;
+            goosePduSize += _raw_GoCbRef.Length;
 
-            return payloadSize;
+            return goosePduSize;
         }
 
         public uint AppID   { get; set; }

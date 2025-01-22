@@ -7,13 +7,18 @@ namespace GooseScript
         [STAThread]
         static void Main()
         {
-            var publisher = new GoosePublisher<double>(new GooseSettings()
+            RunTest();
+        }
+
+        static void RunTest()
+        {
+            var publisher = new GoosePublisher<uint>(new GooseSettings()
             {
                 interfaceName = "Ethernet 3",
 
-                dstMac = 0x0001,
-                appID  = 0xDEAD,
-                vlanID = 0x005,
+                dstMac  = 0x01FF,
+                appID   = 0xDEAD,
+                vlanID  = 0x005,
                 hasVlan = true,
 
                 gocbRef = "IED1LD1/LLN0$GO$GSE1",
@@ -24,7 +29,7 @@ namespace GooseScript
                 TAL = 200
             });
 
-            publisher.Value = -3.14;
+            publisher.Value = uint.MaxValue;
             publisher.Send();
         }
     }
