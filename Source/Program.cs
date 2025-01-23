@@ -12,7 +12,7 @@ namespace GooseScript
 
         static void RunTest()
         {
-            var publisher = new GoosePublisher<uint>(new GooseSettings()
+            var publisher = new GoosePublisher<int>(new GooseSettings()
             {
                 interfaceName = "Ethernet 3",
 
@@ -29,7 +29,7 @@ namespace GooseScript
                 TAL = 200
             });
 
-            publisher.Value = uint.MaxValue;
+            publisher.Value = -128;
             publisher.Send();
         }
     }

@@ -242,16 +242,16 @@ namespace GooseScript
             goosePduSize += 3;
 
             // Encoded ConfRev size
-            goosePduSize += (2 + BerEncoder.GetEncoded_V_Size(ConfRev));
+            goosePduSize += (2 + BerEncoder.GetEncoded_INT32U_Size(ConfRev));
 
             // Encoded Simulation size
             goosePduSize += 3;
 
             // Encoded sqNum size
-            goosePduSize += (2 + BerEncoder.GetEncoded_V_Size(_sqNum));
+            goosePduSize += (2 + BerEncoder.GetEncoded_INT32U_Size(_sqNum));
 
             // Encoded stNum size
-            goosePduSize += (2 + BerEncoder.GetEncoded_V_Size(_stNum));
+            goosePduSize += (2 + BerEncoder.GetEncoded_INT32U_Size(_stNum));
 
             // Encoded TimeStamp size
             goosePduSize += 10;
@@ -263,7 +263,7 @@ namespace GooseScript
             goosePduSize += _raw_DatSet.Length;
 
             // Encoded TAL size
-            goosePduSize += (2 + BerEncoder.GetEncoded_V_Size(TAL));
+            goosePduSize += (2 + BerEncoder.GetEncoded_INT32U_Size(TAL));
 
             // Encoded goCbRef size
             goosePduSize += _raw_GoCbRef.Length;

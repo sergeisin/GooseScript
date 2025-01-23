@@ -5,13 +5,26 @@ namespace GooseScript
 {
     internal static class BerEncoder
     {
-        public static int GetEncoded_V_Size(uint value)
+        public static int GetEncoded_INT32U_Size(uint value)
         {
             if (value > 0x7FFFFFFF) return 5;
             if (value >   0x7FFFFF) return 4;
             if (value >     0x7FFF) return 3;
             if (value >       0x7F) return 2;
                                     return 1;
+        }
+
+        public static int GetEncoded_INT32S_Size(int value)
+        {
+            if (value >= 0)
+            {
+                return GetEncoded_INT32U_Size((uint)value);
+            }
+
+            if (value < -0x800000) return 4;
+            if (value <   -0x8000) return 3;
+            if (value <     -0x80) return 2;
+                                   return 1;
         }
 
         public static int GetEncoded_L_Size(int length)
@@ -101,7 +114,7 @@ namespace GooseScript
         {
             frame[offset++] = tag;
 
-            switch (GetEncoded_V_Size(value))
+            switch (GetEncoded_INT32U_Size(value))
             {
                 case 1:
                     frame[offset++] = 0x01;
@@ -138,15 +151,9 @@ namespace GooseScript
 
         public static void Encode_INT32S_TLV(Span<byte> frame, ref int offset, byte tag, int value)
         {
-            uint uVal;
-            if (value < 0)
-                uVal = uint.MaxValue - (uint)(-value) + 1;
-            else
-                uVal = (uint)value;
-
             frame[offset++] = tag;
 
-            switch (GetEncoded_V_Size((uint)(value < 0 ? -value : value)))
+            switch (GetEncoded_INT32S_Size(value))
             {
                 case 1:
                     frame[offset++] = 0x01;
@@ -163,9 +170,7 @@ namespace GooseScript
                     frame[offset++] = (byte)(0xFF & value >>  8);
                     frame[offset++] = (byte)(0xFF & value);
                     break;
-                
-                // 4 or 5
-                default:
+                case 4:
                     frame[offset++] = 0x04;
                     frame[offset++] = (byte)(0xFF & value >> 24);
                     frame[offset++] = (byte)(0xFF & value >> 16);
