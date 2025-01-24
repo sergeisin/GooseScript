@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using SharpPcap;
 using SharpPcap.LibPcap;
 
@@ -68,6 +70,33 @@ namespace GooseScript
             _DatSet_Buffer = new byte[16];
 
             UpdateState();
+        }
+
+        public void Run(int minTime, int maxTime)
+        {
+            if (minTime < 10)
+                minTime = 10;
+
+            if (maxTime > 10_000)
+                maxTime = 10_000;
+
+            long nextTicks = 0;
+
+            Task.Run(() =>
+            {
+                var timer = Stopwatch.StartNew();
+
+                while (true)
+                {
+                    if (timer.ElapsedTicks >= nextTicks)
+                    {
+                        nextTicks += minTime * 10000;
+                        Send();
+                    }
+
+                    NtTimer.Sleep(1);
+                }
+            });
         }
 
         public void Send()

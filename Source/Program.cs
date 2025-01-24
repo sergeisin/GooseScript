@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace GooseScript
 {
@@ -29,8 +30,10 @@ namespace GooseScript
                 TAL = 200
             });
 
-            publisher.Value = -128;
-            publisher.Send();
+            publisher.Value = -150;
+            publisher.Run(100, 2000);
+
+            Thread.Sleep(60_000);
         }
     }
 }
