@@ -7,16 +7,16 @@ using SharpPcap.LibPcap;
 
 namespace GooseScript
 {
-    public class GoosePublisher<T>
+    public enum MMS_TYPE : byte
     {
-        private enum MMS_TYPE: byte
-        {
-            BOOLEAN = 0x83,
-            INT32   = 0x85,
-            INT32U  = 0x86,
-            FLOAT32 = 0x87
-        }
+        BOOLEAN = 0x83,
+        INT32   = 0x85,
+        INT32U  = 0x86,
+        FLOAT32 = 0x87
+    }
 
+    public class GoosePublisher
+    {
         private enum ASN1_Tag : byte
         {
             goosePDU          = 0x61,
@@ -39,24 +39,12 @@ namespace GooseScript
             settings.Validate();
             _settings = settings;
 
-            switch (Value)
-            {
-                case bool   _: _mmsType = MMS_TYPE.BOOLEAN; break;
-                case int    _: _mmsType = MMS_TYPE.INT32;   break;
-                case uint   _: _mmsType = MMS_TYPE.INT32U;  break;
-                case float  _: _mmsType = MMS_TYPE.FLOAT32; break;
-                case double _: _mmsType = MMS_TYPE.FLOAT32; break;
-
-                default:
-                    throw new NotImplementedException($"Type '{typeof(T).Name}' is not implemented!");
-            }
-
             OpenDevice();
             MakeHeader();
 
-            _raw_GoCbRef  = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.goCBRef, settings.gocbRef);
-            _raw_DatSet   = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.dataSet, settings.datSet);
-            _raw_GoId     = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.goID,    settings.goId);
+            _raw_GoCbRef = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.goCBRef, settings.gocbRef);
+            _raw_DatSet  = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.dataSet, settings.datSet);
+            _raw_GoId    = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.goID,    settings.goId);
 
             AppID   = settings.appID;
             TAL     = settings.TAL;
@@ -68,6 +56,9 @@ namespace GooseScript
 
             // Reserved for AllData - [stVal + q]
             _DatSet_Buffer = new byte[16];
+
+            _mmsType = settings.mmsType;
+            _value   = settings.initVal;
 
             UpdateState();
         }
@@ -149,7 +140,7 @@ namespace GooseScript
             _sqNum = (_sqNum == uint.MaxValue) ? 1 : _sqNum + 1;
         }
 
-        public T Value
+        public object Value
         {
             get { return _value; }
             set
@@ -321,7 +312,7 @@ namespace GooseScript
             }
         }
 
-        private T        _value;
+        private object   _value;
         private MMS_TYPE _mmsType;
         private Quality  _quality;
 

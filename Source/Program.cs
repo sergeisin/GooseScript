@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace GooseScript
 {
@@ -13,7 +12,7 @@ namespace GooseScript
 
         static void RunTest()
         {
-            var publisher = new GoosePublisher<int>(new GooseSettings()
+            var publisher = new GoosePublisher(new GooseSettings()
             {
                 interfaceName = "Ethernet 3",
 
@@ -27,13 +26,19 @@ namespace GooseScript
                 goId    = "IED1LD1/LLN0.GSE1",
 
                 confRev = 1000,
-                TAL = 200
+                TAL     = 500,
+
+                mmsType = MMS_TYPE.BOOLEAN
             });
 
-            publisher.Value = -150;
-            publisher.Run(100, 2000);
 
-            Thread.Sleep(60_000);
+            while (true)
+            {
+                publisher.Send();
+                publisher.Value = true;
+                publisher.Send();
+                publisher.Value = false;
+            }
         }
     }
 }

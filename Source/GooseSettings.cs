@@ -69,6 +69,16 @@ namespace GooseScript
         /// </summary>
         public uint TAL;
 
+        /// <summary>
+        /// MMS Type of stVal
+        /// </summary>
+        public MMS_TYPE mmsType;
+
+        /// <summary>
+        /// Initial value of stVal
+        /// </summary>
+        public object initVal;
+
         public void Validate()
         {
             if (dstMac > 0x03FF)
@@ -109,6 +119,19 @@ namespace GooseScript
             if (goId.Length > 129)
             {
                 throw new ArgumentException("'goId' max length is 129 characters");
+            }
+
+            switch (mmsType)
+            {   
+                case MMS_TYPE.BOOLEAN: initVal = default(bool);  break;
+                case MMS_TYPE.INT32:   initVal = default(int);   break;
+                case MMS_TYPE.INT32U:  initVal = default(uint);  break;
+                case MMS_TYPE.FLOAT32: initVal = default(float); break;
+
+                default:
+                    mmsType = MMS_TYPE.BOOLEAN;
+                    initVal = false;
+                    break;
             }
         }
     }
