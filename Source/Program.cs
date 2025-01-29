@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace GooseScript
 {
@@ -31,14 +32,9 @@ namespace GooseScript
                 mmsType = MMS_TYPE.BOOLEAN
             });
 
+            publisher.Run(minTime: 50, maxTime: 1000);
 
-            while (true)
-            {
-                publisher.Send();
-                publisher.Value = true;
-                publisher.Send();
-                publisher.Value = false;
-            }
+            Thread.Sleep(10_000);
         }
     }
 }

@@ -71,17 +71,34 @@ namespace GooseScript
             if (maxTime > 10_000)
                 maxTime = 10_000;
 
-            long nextTicks = 0;
-
             Task.Run(() =>
             {
                 var timer = Stopwatch.StartNew();
+                
+                long ticksInMs = Stopwatch.Frequency / 1000;
+                long nextTicks = 0;
+
+                int retInterval = minTime;
+                int retCounter = 0;
 
                 while (true)
                 {
                     if (timer.ElapsedTicks >= nextTicks)
                     {
-                        nextTicks += minTime * 10000;
+                        TAL = (uint)(retInterval * 3);
+
+                        nextTicks = timer.ElapsedTicks + retInterval * ticksInMs;
+
+                        if (retInterval < maxTime / 2)
+                        {
+                            retInterval *= 2;
+                            retCounter++;
+                        }
+                        else
+                        {
+                            retInterval = maxTime;
+                        }
+
                         Send();
                     }
 
