@@ -65,45 +65,57 @@ namespace GooseScript
 
         public void Run(int minTime, int maxTime)
         {
-            if (minTime < 10)
-                minTime = 10;
+            if (minTime < 2)
+                minTime = 2;
 
             if (maxTime > 10_000)
                 maxTime = 10_000;
 
+            _running = true;
+
             Task.Run(() =>
             {
-                var timer = Stopwatch.StartNew();
-                
                 long ticksInMs = Stopwatch.Frequency / 1000;
-                long nextTicks = 0;
 
-                int retInterval = minTime;
-                int retCounter = 0;
+                int retInterval = 0;
+                long nextTicks  = 0;
 
-                while (true)
+                var timer = Stopwatch.StartNew();
+
+                while (_running)
                 {
+                    // Retransmission mechanism defined by the standard
+                    // СТО 56947007-25.040.30.309-2020
+
                     if (timer.ElapsedTicks >= nextTicks)
                     {
-                        TAL = (uint)(retInterval * 3);
-
-                        nextTicks = timer.ElapsedTicks + retInterval * ticksInMs;
-
-                        if (retInterval < maxTime / 2)
+                        if (_sqNum < 4)
+                        {
+                            retInterval = minTime;
+                        }
+                        else if (_sqNum < 7)
                         {
                             retInterval *= 2;
-                            retCounter++;
+
+                            if (retInterval > maxTime)
+                                retInterval = maxTime;
                         }
                         else
                         {
                             retInterval = maxTime;
                         }
 
+                        nextTicks = timer.ElapsedTicks + retInterval * ticksInMs;
+
+                        TAL = (uint)(retInterval * 3);
+
                         Send();
                     }
 
                     NtTimer.Sleep(1);
                 }
+
+                timer.Stop();
             });
         }
 
@@ -344,6 +356,8 @@ namespace GooseScript
 
         private byte[] _DatSet_Buffer;
         private int    _DatSet_Size;
+
+        private bool _running;
 
         private GooseSettings _settings;
         private LibPcapLiveDevice _device;

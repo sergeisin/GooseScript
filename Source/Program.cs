@@ -15,7 +15,7 @@ namespace GooseScript
         {
             var publisher = new GoosePublisher(new GooseSettings()
             {
-                interfaceName = "Ethernet 3",
+                interfaceName = "Ethernet",
 
                 dstMac  = 0x01FF,
                 appID   = 0xDEAD,
@@ -27,14 +27,13 @@ namespace GooseScript
                 goId    = "IED1LD1/LLN0.GSE1",
 
                 confRev = 1000,
-                TAL     = 500,
 
                 mmsType = MMS_TYPE.BOOLEAN
             });
 
-            publisher.Run(minTime: 50, maxTime: 1000);
+            publisher.Run(100, 1000);
 
-            Thread.Sleep(10_000);
+            Thread.Sleep(60_000);
         }
     }
 }
