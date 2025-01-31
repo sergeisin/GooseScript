@@ -123,10 +123,21 @@ namespace GooseScript
 
             switch (mmsType)
             {   
-                case MMS_TYPE.BOOLEAN: initVal = default(bool);  break;
-                case MMS_TYPE.INT32:   initVal = default(int);   break;
-                case MMS_TYPE.INT32U:  initVal = default(uint);  break;
-                case MMS_TYPE.FLOAT32: initVal = default(float); break;
+                case MMS_TYPE.BOOLEAN:
+                    initVal = initVal ?? default(bool);
+                    break;
+
+                case MMS_TYPE.INT32:
+                    initVal = initVal ?? default(int);
+                    break;
+
+                case MMS_TYPE.INT32U:
+                    initVal = initVal ?? default(uint);
+                    break;
+
+                case MMS_TYPE.FLOAT32:
+                    initVal = initVal ?? default(float);
+                    break;
 
                 default:
                     mmsType = MMS_TYPE.BOOLEAN;
