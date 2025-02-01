@@ -140,7 +140,7 @@ namespace GooseScript
                     break;
 
                 case MMS_TYPE.BIT_STRING:
-                    initVal = initVal ?? "01";
+                    initVal = initVal ?? Dbpos.Off;
                     break;
 
                 case MMS_TYPE.OCTET_STRING:

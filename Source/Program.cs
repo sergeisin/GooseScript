@@ -31,9 +31,8 @@ namespace GooseScript
                 mmsType = MMS_TYPE.BIT_STRING
             });
 
+            publisher.Value = "1111_0000_1";
             publisher.Send();
-
-            Thread.Sleep(60_000);
         }
     }
 }

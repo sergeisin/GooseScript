@@ -277,7 +277,7 @@ namespace GooseScript
 
         public static void Encode_OctetString_TLV(Span<byte> frame, ref int offset, byte tag, string str)
         {
-            string hexStr = str.Replace(" ", "");
+            string hexStr = str.Replace(" ", "").Replace("_", "");
 
             if (hexStr.Length % 2 != 0)
             {
@@ -289,14 +289,19 @@ namespace GooseScript
                 throw new ArgumentException("Octet string must contain only hex characters");
             }
 
-            Encode_RawBytes_TLV(frame, ref offset, tag, Utils.GetOctets(hexStr));
+            Encode_RawBytes_TLV(frame, ref offset, tag, Utils.GetOctetString(hexStr));
         }
 
         public static void Encode_BitString_TLV(Span<byte> frame, ref int offset, byte tag, string str)
         {
-            string bitStr = str.Replace(" ", "");
+            string bitStr = str.Replace(" ", "").Replace("_", "");
 
-            if (!Utils.IsHexString(bitStr))
+            if (bitStr == string.Empty)
+            {
+                throw new ArgumentException("Bit string shouldn't be empty");
+            }
+
+            if (!Utils.IsBitString(bitStr))
             {
                 throw new ArgumentException("Bit string must contain only '0' or '1' characters");
             }
