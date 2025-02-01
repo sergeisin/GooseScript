@@ -97,9 +97,15 @@ namespace GooseScript
         public void Send()
         {
             int goosePduSize = GetGoosePduSize();
-            int gooseLength = 9 + BerEncoder.GetEncoded_L_Size(goosePduSize) + goosePduSize;
+            int gooseLength  = 9 + BerEncoder.GetEncoded_L_Size(goosePduSize) + goosePduSize;
+            int rawFrameSize = gooseLength + 18;
 
-            Span<byte> frame = stackalloc byte[512];
+            if (rawFrameSize > 1518)
+            {
+                throw new ArgumentOutOfRangeException($"Frame size {rawFrameSize} exceeds MTU = 1518 bytes");
+            }
+
+            Span<byte> frame = stackalloc byte[rawFrameSize];
             int offset = 0;
 
             // Ethernet header
@@ -254,7 +260,9 @@ namespace GooseScript
             int goosePduSize = 0;
 
             // Encoded AllData size
-            goosePduSize += (2 + _DatSet_Size);
+            goosePduSize += 1;
+            goosePduSize += BerEncoder.GetEncoded_L_Size(_DatSet_Size);
+            goosePduSize += _DatSet_Size;
 
             // Encoded NumDataSetEntries size
             goosePduSize += 3;
