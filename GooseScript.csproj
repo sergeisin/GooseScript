@@ -82,6 +82,7 @@
     <Compile Include="Source\GoosePublisher.cs" />
     <Compile Include="Source\GooseSettings.cs" />
     <Compile Include="Source\NtTimer.cs" />
+    <Compile Include="Source\Utils.cs" />
     <Compile Include="Source\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\Quality.cs" />

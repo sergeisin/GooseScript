@@ -15,7 +15,7 @@ namespace GooseScript
         {
             var publisher = new GoosePublisher(new GooseSettings()
             {
-                interfaceName = "Ethernet",
+                interfaceName = "Ethernet 3",
 
                 dstMac  = 0x01FF,
                 appID   = 0xDEAD,
@@ -28,9 +28,10 @@ namespace GooseScript
 
                 confRev = 1000,
 
-                mmsType = MMS_TYPE.BOOLEAN
+                mmsType = MMS_TYPE.OCTET_STRING
             });
 
+            publisher.Value = "c0ffee";
             publisher.Run(100, 1000);
 
             Thread.Sleep(60_000);

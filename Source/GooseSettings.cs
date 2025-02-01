@@ -79,7 +79,7 @@ namespace GooseScript
         /// </summary>
         public object initVal;
 
-        public void Validate()
+        public void Init()
         {
             if (dstMac > 0x03FF)
             {
@@ -122,7 +122,7 @@ namespace GooseScript
             }
 
             switch (mmsType)
-            {   
+            {
                 case MMS_TYPE.BOOLEAN:
                     initVal = initVal ?? default(bool);
                     break;
@@ -137,6 +137,14 @@ namespace GooseScript
 
                 case MMS_TYPE.FLOAT32:
                     initVal = initVal ?? default(float);
+                    break;
+
+                case MMS_TYPE.BIT_STRING:
+                    initVal = initVal ?? "01";
+                    break;
+
+                case MMS_TYPE.OCTET_STRING:
+                    initVal = initVal ?? "6769746875622e636f6d2f73657267656973696E";
                     break;
 
                 default:

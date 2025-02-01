@@ -9,10 +9,12 @@ namespace GooseScript
 {
     public enum MMS_TYPE : byte
     {
-        BOOLEAN = 0x83,
-        INT32   = 0x85,
-        INT32U  = 0x86,
-        FLOAT32 = 0x87
+        BOOLEAN      = 0x83,
+        BIT_STRING   = 0x84,
+        INT32        = 0x85,
+        INT32U       = 0x86,
+        FLOAT32      = 0x87,
+        OCTET_STRING = 0x89
     }
 
     public class GoosePublisher
@@ -36,8 +38,8 @@ namespace GooseScript
 
         public GoosePublisher(GooseSettings settings)
         {
-            settings.Validate();
             _settings = settings;
+            _settings.Init();
 
             OpenDevice();
             MakeHeader();
@@ -54,8 +56,8 @@ namespace GooseScript
             Simulation_Reserved = settings.simulation_reserved;
             Simulation_GoosePDU = settings.simulation_goosePdu;
 
-            // Reserved for AllData - [stVal + q]
-            _DatSet_Buffer = new byte[16];
+            // Reserved for AllData
+            _DatSet_Buffer = new byte[1500];
 
             _mmsType = settings.mmsType;
             _value   = settings.initVal;
@@ -268,6 +270,14 @@ namespace GooseScript
 
                 case MMS_TYPE.FLOAT32:
                     BerEncoder.Encode_FLOAT_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToSingle(_value));
+                    break;
+
+                case MMS_TYPE.BIT_STRING:
+                    BerEncoder.Encode_BitString_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToString(_value));
+                    break;
+
+                case MMS_TYPE.OCTET_STRING:
+                    BerEncoder.Encode_OctetString_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToString(_value));
                     break;
 
                 default:

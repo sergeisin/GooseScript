@@ -267,5 +267,52 @@ namespace GooseScript
             frame[offset++] = (byte)(0xFF & fractions >>  8);
             frame[offset++] = 0x0A;
         }
+
+        public static void Encode_OctetString_TLV(Span<byte> frame, ref int offset, byte tag, string str)
+        {
+            string hexStr = str.Replace(" ", "");
+
+            if (hexStr.Length % 2 != 0)
+            {
+                hexStr = "0" + hexStr;
+            }
+
+            if (!Utils.IsHexString(hexStr))
+            {
+                throw new ArgumentException("Octet string must contain only hex characters");
+            }
+
+            byte[] octets = Utils.GetOctets(hexStr);
+
+            frame[offset++] = tag;
+
+            int sLen = GetEncoded_L_Size(octets.Length);
+            int vLen = octets.Length;
+
+            switch (sLen)
+            {
+                case 1:
+                    frame[offset++] = (byte)vLen;
+                    break;
+
+                case 2:
+                    frame[offset++] = 0x81;
+                    frame[offset++] = (byte)vLen;
+                    break;
+
+                case 3:
+                    frame[offset++] = 0x82;
+                    frame[offset++] = (byte)(vLen >> 8);
+                    frame[offset++] = (byte)(vLen & 0xFF);
+                    break;
+            }
+
+            Encode_RawBytes(frame, ref offset, octets);
+        }
+
+        public static void Encode_BitString_TLV(Span<byte> frame, ref int offset, byte tag, string str)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
