@@ -22,5 +22,10 @@ namespace GooseScript
         {
             return str.All("01".Contains);
         }
+
+        public static byte[] GetBitString(string str)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -28,11 +28,10 @@ namespace GooseScript
 
                 confRev = 1000,
 
-                mmsType = MMS_TYPE.OCTET_STRING
+                mmsType = MMS_TYPE.BIT_STRING
             });
 
-            publisher.Value = "c0ffee";
-            publisher.Run(100, 1000);
+            publisher.Send();
 
             Thread.Sleep(60_000);
         }

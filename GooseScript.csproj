@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\BerEncoder.cs" />
+    <Compile Include="Source\Enums.cs" />
     <Compile Include="Source\GoosePublisher.cs" />
     <Compile Include="Source\GooseSettings.cs" />
     <Compile Include="Source\NtTimer.cs" />

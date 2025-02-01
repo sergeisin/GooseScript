@@ -7,35 +7,8 @@ using SharpPcap.LibPcap;
 
 namespace GooseScript
 {
-    public enum MMS_TYPE : byte
-    {
-        BOOLEAN      = 0x83,
-        BIT_STRING   = 0x84,
-        INT32        = 0x85,
-        INT32U       = 0x86,
-        FLOAT32      = 0x87,
-        OCTET_STRING = 0x89
-    }
-
     public class GoosePublisher
     {
-        private enum ASN1_Tag : byte
-        {
-            goosePDU          = 0x61,
-            goCBRef           = 0x80,
-            timeAllowedToLive = 0x81,
-            dataSet           = 0x82,
-            goID              = 0x83,
-            TimeStamp         = 0x84,
-            stNum             = 0x85,
-            sqNum             = 0x86,
-            simulation        = 0x87,
-            confRev           = 0x88,
-            ndsCom            = 0x89,
-            numDatSetEntries  = 0x8a,
-            allData           = 0xab
-        }
-
         public GoosePublisher(GooseSettings settings)
         {
             _settings = settings;
@@ -44,9 +17,9 @@ namespace GooseScript
             OpenDevice();
             MakeHeader();
 
-            _raw_GoCbRef = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.goCBRef, settings.gocbRef);
-            _raw_DatSet  = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.dataSet, settings.datSet);
-            _raw_GoId    = BerEncoder.GetEncodedTLV((byte)ASN1_Tag.goID,    settings.goId);
+            _raw_GoCbRef = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.goCBRef, settings.gocbRef);
+            _raw_DatSet  = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.dataSet, settings.datSet);
+            _raw_GoId    = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.goID,    settings.goId);
 
             AppID   = settings.appID;
             TAL     = settings.TAL;

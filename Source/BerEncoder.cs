@@ -38,38 +38,17 @@ namespace GooseScript
                 return 3;           // 82 + [01 00 .. ff ff]
         }
 
-        public static byte[] GetEncodedTLV(byte tag, string str)
+        public static byte[] Create_VisibleString_TLV(byte tag, string str)
         {
             byte[] data = Encoding.ASCII.GetBytes(str);
 
-            int sizeof_TAG = 1;
-            int sizeof_LEN = GetEncoded_L_Size(data.Length);
-            int sizeof_VAL = data.Length;
+            int sLen = GetEncoded_L_Size(data.Length);
+            int vLen = data.Length;
 
-            var buffer = new byte[sizeof_TAG + sizeof_LEN + sizeof_VAL];
-            int bufPos = 0;
+            var buffer = new byte[1 + sLen + vLen];
+            int offset = 0;
 
-            buffer[bufPos++] = tag;
-
-            switch (sizeof_LEN)
-            {
-                case 1:
-                    buffer[bufPos++] = (byte)sizeof_VAL;
-                    break;
-
-                case 2:
-                    buffer[bufPos++] = 0x81;
-                    buffer[bufPos++] = (byte)sizeof_VAL;
-                    break;
-
-                case 3:
-                    buffer[bufPos++] = 0x82;
-                    buffer[bufPos++] = (byte)(sizeof_VAL >> 8);
-                    buffer[bufPos++] = (byte)(sizeof_VAL & 0xFF);
-                    break;
-            }
-
-            Array.Copy(data, 0, buffer, bufPos, data.Length);
+            Encode_RawBytes_TLV(buffer, ref offset, tag, data);
 
             return buffer;
         }
@@ -108,6 +87,34 @@ namespace GooseScript
             }
 
             offset += iterations;
+        }
+
+        public static void Encode_RawBytes_TLV(Span<byte> frame, ref int offset, byte tag, byte[] data)
+        {
+            frame[offset++] = tag;
+
+            int sLen = GetEncoded_L_Size(data.Length);
+            int vLen = data.Length;
+
+            switch (sLen)
+            {
+                case 1:
+                    frame[offset++] = (byte)vLen;
+                    break;
+
+                case 2:
+                    frame[offset++] = 0x81;
+                    frame[offset++] = (byte)vLen;
+                    break;
+
+                case 3:
+                    frame[offset++] = 0x82;
+                    frame[offset++] = (byte)(vLen >> 8);
+                    frame[offset++] = (byte)(vLen & 0xFF);
+                    break;
+            }
+
+            Encode_RawBytes(frame, ref offset, data);
         }
 
         public static void Encode_INT32U_TLV(Span<byte> frame, ref int offset, byte tag, uint value)
@@ -282,37 +289,19 @@ namespace GooseScript
                 throw new ArgumentException("Octet string must contain only hex characters");
             }
 
-            byte[] octets = Utils.GetOctets(hexStr);
-
-            frame[offset++] = tag;
-
-            int sLen = GetEncoded_L_Size(octets.Length);
-            int vLen = octets.Length;
-
-            switch (sLen)
-            {
-                case 1:
-                    frame[offset++] = (byte)vLen;
-                    break;
-
-                case 2:
-                    frame[offset++] = 0x81;
-                    frame[offset++] = (byte)vLen;
-                    break;
-
-                case 3:
-                    frame[offset++] = 0x82;
-                    frame[offset++] = (byte)(vLen >> 8);
-                    frame[offset++] = (byte)(vLen & 0xFF);
-                    break;
-            }
-
-            Encode_RawBytes(frame, ref offset, octets);
+            Encode_RawBytes_TLV(frame, ref offset, tag, Utils.GetOctets(hexStr));
         }
 
         public static void Encode_BitString_TLV(Span<byte> frame, ref int offset, byte tag, string str)
         {
-            throw new NotImplementedException();
+            string bitStr = str.Replace(" ", "");
+
+            if (!Utils.IsHexString(bitStr))
+            {
+                throw new ArgumentException("Bit string must contain only '0' or '1' characters");
+            }
+
+            Encode_RawBytes_TLV(frame, ref offset, tag, Utils.GetBitString(bitStr));
         }
     }
 }
