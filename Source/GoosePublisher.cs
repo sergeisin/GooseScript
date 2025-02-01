@@ -144,23 +144,12 @@ namespace GooseScript
             _sqNum = (_sqNum == uint.MaxValue) ? 1 : _sqNum + 1;
         }
 
-        public object Value
+        public void SendFew(int count, int sleepTime)
         {
-            get { return _value; }
-            set
+            for (int i = 0; i < count; i++)
             {
-                _value = value;
-                UpdateState();
-            }
-        }
-
-        public Quality Quality
-        {
-            get { return _quality; }
-            set
-            {
-                _quality = value;
-                UpdateState();
+                Send();
+                NtTimer.Sleep(sleepTime);
             }
         }
 
@@ -310,6 +299,7 @@ namespace GooseScript
 
         public bool Simulation_Reserved { get; set; }
         public bool Simulation_GoosePDU { get; set; }
+
         public bool Simulation
         {
             get
@@ -321,6 +311,38 @@ namespace GooseScript
             {
                 Simulation_GoosePDU = value;
                 Simulation_Reserved = value;
+            }
+        }
+
+        public uint StNum
+        {
+            get { return _stNum; }
+            set { _stNum = value; }
+        }
+
+        public uint SqNum
+        {
+            get { return _sqNum; }
+            set { _sqNum = value; }
+        }
+
+        public object Value
+        {
+            get { return _value; }
+            set
+            {
+                _value = value;
+                UpdateState();
+            }
+        }
+
+        public Quality Quality
+        {
+            get { return _quality; }
+            set
+            {
+                _quality = value;
+                UpdateState();
             }
         }
 

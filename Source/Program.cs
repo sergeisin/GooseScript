@@ -27,12 +27,19 @@ namespace GooseScript
                 goId    = "IED1LD1/LLN0.GSE1",
 
                 confRev = 1000,
+                TAL =  400,
 
-                mmsType = MMS_TYPE.BIT_STRING
+                mmsType = MMS_TYPE.BOOLEAN
             });
 
-            publisher.Value = "1111_0000_1";
-            publisher.Send();
+            while (true)
+            {
+                publisher.SendFew(4, 200);
+                publisher.Value = true;
+
+                publisher.SendFew(4, 200);
+                publisher.Value = false;
+            }
         }
     }
 }
