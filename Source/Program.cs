@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using System.Windows.Forms;
 
 namespace GooseScript
 {
@@ -8,38 +8,9 @@ namespace GooseScript
         [STAThread]
         static void Main()
         {
-            RunTest();
-        }
-
-        static void RunTest()
-        {
-            var publisher = new GoosePublisher(new GooseSettings()
-            {
-                interfaceName = "Ethernet 3",
-
-                dstMac  = 0x01FF,
-                appID   = 0xDEAD,
-                vlanID  = 0x005,
-                hasVlan = true,
-
-                gocbRef = "IED1LD1/LLN0$GO$GSE1",
-                datSet  = "IED1LD1/LLN0$DataSet",
-                goId    = "IED1LD1/LLN0.GSE1",
-
-                confRev = 1000,
-                TAL =  400,
-
-                mmsType = MMS_TYPE.BOOLEAN
-            });
-
-            while (true)
-            {
-                publisher.SendFew(4, 200);
-                publisher.Value = true;
-
-                publisher.SendFew(4, 200);
-                publisher.Value = false;
-            }
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainForm());
         }
     }
 }
