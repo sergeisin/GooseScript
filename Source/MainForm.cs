@@ -19,13 +19,13 @@ namespace GooseScript
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            if (File.Exists(codePath))
+            if (File.Exists(srcFile))
             {
-                srcCode = File.ReadAllText(codePath);
+                srcCode = File.ReadAllText(srcFile);
             }
             else
             {
-                throw new NotImplementedException();
+                srcCode = ScriptText.Default;
             }
         }
 
@@ -34,9 +34,6 @@ namespace GooseScript
             if (thread is null)
             {
                 MethodInfo script = CompileUserScript();
-
-                if (script is null)
-                    return;
 
                 thread = new Thread(() =>
                 {
@@ -70,12 +67,18 @@ namespace GooseScript
                 thread = null;
                 GC.Collect();
 
-                button.Text = "Run";
+                button.Text = "Run Script";
             }
         }
 
         private MethodInfo CompileUserScript()
         {
+            string programText = 
+                $"using GooseScript;\n" +
+                $"namespace UserCode {{ " +
+                $"public static class Program {{ " +
+                $"public static void Script() {srcCode} }} }}";
+
             var parameters = new CompilerParameters()
             {
                 GenerateExecutable = false,
@@ -88,7 +91,7 @@ namespace GooseScript
                 parameters.ReferencedAssemblies.Add(assembly.Location);
             }
 
-            CompilerResults results = new CSharpCodeProvider().CompileAssemblyFromSource(parameters, srcCode);
+            CompilerResults results = new CSharpCodeProvider().CompileAssemblyFromSource(parameters, programText);
 
             if (results.Errors.HasErrors)
             {
@@ -102,24 +105,15 @@ namespace GooseScript
             }
             else
             {
-                MethodInfo mInfo = results.CompiledAssembly.GetType("UserCode.Program").GetMethod("Script");
-
-                if (mInfo is null)
-                {
-                    MessageBox.Show("Method 'Script' not found", "Compile error",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    return mInfo;
-                }
+                return results.CompiledAssembly.GetType("UserCode.Program").GetMethod("Script");
             }
 
             return null;
         }
 
-        private string codePath = @"C:\Users\Sergei\Desktop\WorkSpace\Script.cs";
-        private string srcCode;
         private Thread thread;
+
+        private string srcCode;
+        private readonly string srcFile = "GooseScript.cs";
     }
 }
