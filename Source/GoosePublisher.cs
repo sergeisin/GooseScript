@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using SharpPcap;
 using SharpPcap.LibPcap;
@@ -11,6 +12,8 @@ namespace GooseScript
     {
         public GoosePublisher(GooseSettings settings)
         {
+            _mainThread = Thread.CurrentThread;
+
             _settings = settings;
             _settings.Init();
 
@@ -85,6 +88,10 @@ namespace GooseScript
                         TAL = (uint)(retInterval * 3);
 
                         Send();
+
+                        // Stopping when the parent thread terminates
+                        if (!_mainThread.IsAlive)
+                            break;
                     }
 
                     NtTimer.Sleep(1);
@@ -374,5 +381,7 @@ namespace GooseScript
 
         private GooseSettings _settings;
         private LibPcapLiveDevice _device;
+
+        private Thread _mainThread;
     }
 }

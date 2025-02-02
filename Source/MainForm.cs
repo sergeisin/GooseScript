@@ -61,7 +61,7 @@ namespace GooseScript
             }
             else
             {
-                if (!thread.IsAlive)
+                if (thread.IsAlive)
                 {
                     thread.Abort();
                     thread.Join();
@@ -118,7 +118,7 @@ namespace GooseScript
             return null;
         }
 
-        private string codePath = @"..\Script.cs";
+        private string codePath = @"C:\Users\Sergei\Desktop\WorkSpace\Script.cs";
         private string srcCode;
         private Thread thread;
     }
