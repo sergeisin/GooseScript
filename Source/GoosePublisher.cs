@@ -33,7 +33,7 @@ namespace GooseScript
             Simulation_GoosePDU = settings.simulation_goosePdu;
 
             // Reserved for AllData
-            _DatSet_Buffer = new byte[1500];
+            _DatSet_Buffer = new byte[MaxGooseSize];
 
             _mmsType = settings.mmsType;
             _value   = settings.initVal;
@@ -96,7 +96,7 @@ namespace GooseScript
 
                     NtTimer.Sleep(1);
                 }
-
+                
                 timer.Stop();
             });
         }
@@ -107,9 +107,9 @@ namespace GooseScript
             int gooseLength  = 9 + BerEncoder.GetEncoded_L_Size(goosePduSize) + goosePduSize;
             int rawFrameSize = gooseLength + 18;
 
-            if (rawFrameSize > 1518)
+            if (rawFrameSize > MaxFrameSize)
             {
-                throw new ArgumentOutOfRangeException($"Frame size {rawFrameSize} exceeds MTU = 1518 bytes");
+                throw new ArgumentOutOfRangeException($"Frame size {rawFrameSize} exceeds MTU = {MaxFrameSize} bytes");
             }
 
             Span<byte> frame = stackalloc byte[rawFrameSize];
@@ -383,5 +383,8 @@ namespace GooseScript
         private LibPcapLiveDevice _device;
 
         private Thread _mainThread;
+
+        private const int MaxFrameSize = 1518;
+        private const int MaxGooseSize = 1400;
     }
 }

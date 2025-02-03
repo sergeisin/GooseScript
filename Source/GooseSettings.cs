@@ -79,6 +79,9 @@ namespace GooseScript
         /// </summary>
         public object initVal;
 
+        /// <summary>
+        /// Validate settings and set default initVal
+        /// </summary>
         public void Init()
         {
             if (dstMac > 0x03FF)

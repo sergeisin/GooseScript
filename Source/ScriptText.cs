@@ -8,7 +8,7 @@ namespace GooseScript
 {
     var publisher = new GoosePublisher(new GooseSettings()
     {
-        interfaceName = ""Ethernet"",
+        interfaceName = ""Ethernet 3"",
 
         dstMac  = 0x01FF,
         appID   = 0xDEAD,
