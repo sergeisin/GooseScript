@@ -109,7 +109,7 @@ namespace GooseScript
 
             if (rawFrameSize > MaxFrameSize)
             {
-                throw new ArgumentOutOfRangeException($"Frame size {rawFrameSize} exceeds MTU = {MaxFrameSize} bytes");
+                throw new Exception($"Frame size '{rawFrameSize}' exceeds MTU ({MaxFrameSize} bytes)");
             }
 
             Span<byte> frame = stackalloc byte[rawFrameSize];
@@ -216,7 +216,14 @@ namespace GooseScript
 
         private void UpdateState()
         {
-            MakeDataSet();
+            try
+            {
+                MakeDataSet();
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new Exception("DataSet is too large");
+            }
 
             _stNum = (_sqNum == uint.MaxValue) ? 1 : _stNum + 1;
             _sqNum = 0;
@@ -256,7 +263,7 @@ namespace GooseScript
                     break;
 
                 default:
-                    throw new NotImplementedException();
+                    throw new Exception("Unknown MMS data type");
             }
 
             BerEncoder.Encode_Quality_TLV(_DatSet_Buffer, ref _DatSet_Size, _quality);
@@ -384,7 +391,7 @@ namespace GooseScript
 
         private Thread _mainThread;
 
-        private const int MaxFrameSize = 1518;
+        private const int MaxFrameSize = 1500;
         private const int MaxGooseSize = 1400;
     }
 }
