@@ -15,60 +15,87 @@ namespace GooseScript
         public MainForm()
         {
             InitializeComponent();
+
+            int[] tabs = new int[32];
+
+            for (int i = 0; i < tabs.Length; i++)
+                tabs[i] = 28 + 28 * i;
+
+            scriptEditor.SelectionTabs = tabs;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             if (File.Exists(srcFile))
             {
-                srcCode = File.ReadAllText(srcFile);
+                scriptEditor.Text = File.ReadAllText(srcFile);
             }
             else
             {
-                srcCode = ScriptText.Default;
+                scriptEditor.Text = ScriptText.Default;
             }
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            File.WriteAllText(srcFile, scriptEditor.Text);
+
+            _scrThread?.Abort();
         }
 
         private void Button_Click(object sender, EventArgs e)
         {
-            if (thread is null)
+            if (_scrThread is null)
             {
-                MethodInfo script = CompileUserScript();
-
-                thread = new Thread(() =>
-                {
-                    try
-                    {
-                        script.Invoke(null, null);
-                    }
-                    catch (ThreadAbortException ex)
-                    {
-                        Debug.WriteLine(ex);
-                    } 
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.InnerException.Message, "Script exception",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                });
-
-                thread.Start();
-
-                button.Text = "Stop";
+                StartScript();
             }
             else
             {
-                if (thread.IsAlive)
-                {
-                    thread.Abort();
-                    thread.Join();
-                }
-
-                thread = null;
-                GC.Collect();
-
-                button.Text = "Run Script";
+                StopScript();
             }
+        }
+
+        private void StartScript()
+        {
+            MethodInfo script = CompileUserScript();
+
+            if (script is null)
+                return;
+
+            _scrThread = new Thread(() =>
+            {
+                try
+                {
+                    script.Invoke(null, null);
+                }
+                catch (ThreadAbortException ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.InnerException.Message, "Script exception",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            });
+
+            _scrThread.Start();
+
+            button.Text = "Stop";
+        }
+
+        private void StopScript()
+        {
+            if (_scrThread.IsAlive)
+            {
+                _scrThread.Abort();
+                _scrThread.Join();
+            }
+
+            _scrThread = null;
+            GC.Collect();
+
+            button.Text = "Run Script";
         }
 
         private MethodInfo CompileUserScript()
@@ -77,7 +104,7 @@ namespace GooseScript
                 $"using GooseScript;\n" +
                 $"namespace UserCode {{ " +
                 $"public static class Program {{ " +
-                $"public static void Script() {srcCode} }} }}";
+                $"public static void Script() { scriptEditor.Text } }} }}";
 
             var parameters = new CompilerParameters()
             {
@@ -111,9 +138,8 @@ namespace GooseScript
             return null;
         }
 
-        private Thread thread;
+        private Thread _scrThread;
 
-        private string srcCode;
         private readonly string srcFile = "GooseScript.cs";
     }
 }
