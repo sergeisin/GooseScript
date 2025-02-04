@@ -2,7 +2,7 @@
 
 namespace GooseScript
 {
-    public static class NtTimer
+    public static class Timer
     {
         [DllImport("ntdll.dll")]
         private static extern int NtQueryTimerResolution(ref uint MinimumResolution, ref uint MaximumResolution, ref uint CurrentResolution);
@@ -13,7 +13,7 @@ namespace GooseScript
         [DllImport("ntdll.dll")]
         private static extern int NtDelayExecution(bool Alertable, ref long DelayInterval);
 
-        static NtTimer()
+        static Timer()
         {
             uint min = 0;
             uint max = 0;

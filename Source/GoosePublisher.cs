@@ -58,14 +58,14 @@ namespace GooseScript
                 int retInterval = 0;
                 long nextTicks  = 0;
 
-                var timer = Stopwatch.StartNew();
+                var sw = Stopwatch.StartNew();
 
                 while (_running)
                 {
                     // Retransmission mechanism defined by the standard
                     // СТО 56947007-25.040.30.309-2020
 
-                    if (timer.ElapsedTicks >= nextTicks)
+                    if (sw.ElapsedTicks >= nextTicks)
                     {
                         if (_sqNum < 4)
                         {
@@ -83,7 +83,7 @@ namespace GooseScript
                             retInterval = maxTime;
                         }
 
-                        nextTicks = timer.ElapsedTicks + retInterval * ticksInMs;
+                        nextTicks = sw.ElapsedTicks + retInterval * ticksInMs;
 
                         TAL = (uint)(retInterval * 3);
 
@@ -94,10 +94,10 @@ namespace GooseScript
                             break;
                     }
 
-                    NtTimer.Sleep(1);
+                    Timer.Sleep(1);
                 }
                 
-                timer.Stop();
+                sw.Stop();
             });
         }
 
@@ -162,7 +162,7 @@ namespace GooseScript
             for (int i = 0; i < count; i++)
             {
                 Send();
-                NtTimer.Sleep(sleepTime);
+                Timer.Sleep(sleepTime);
             }
         }
 

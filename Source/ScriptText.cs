@@ -28,7 +28,7 @@ namespace GooseScript
 
     while(true)
     {
-        NtTimer.Sleep(500);
+        Timer.Sleep(500);
     }
 }
 ";
