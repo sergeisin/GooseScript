@@ -76,6 +76,8 @@ namespace GooseScript
                 }
                 catch (Exception ex)
                 {
+                    button.BeginInvoke((Action)(() => button.Text = "Run Script"));
+
                     MessageBox.Show(ex.InnerException.Message, "Script exception",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }

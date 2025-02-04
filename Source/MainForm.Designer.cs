@@ -17,6 +17,7 @@
 
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.button = new System.Windows.Forms.Button();
             this.scriptEditor = new System.Windows.Forms.RichTextBox();
             this.externalPannel = new System.Windows.Forms.Panel();
@@ -80,11 +81,11 @@
             this.ClientSize = new System.Drawing.Size(464, 561);
             this.Controls.Add(this.externalPannel);
             this.Controls.Add(this.button);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MinimumSize = new System.Drawing.Size(450, 550);
             this.Name = "MainForm";
             this.Padding = new System.Windows.Forms.Padding(5);
-            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GooseScript v1.2";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
