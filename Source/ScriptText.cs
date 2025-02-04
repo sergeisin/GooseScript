@@ -4,8 +4,7 @@ namespace GooseScript
     internal static class ScriptText
     {
         public static readonly string Default =
-@"
-{
+@"{
     var publisher = new GoosePublisher(new GooseSettings()
     {
         interfaceName = ""Ethernet 3"",

@@ -34,6 +34,8 @@ namespace GooseScript
             {
                 scriptEditor.Text = ScriptText.Default;
             }
+
+            scriptEditor.SelectionStart = scriptEditor.TextLength;
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
