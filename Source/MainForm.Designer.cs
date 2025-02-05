@@ -53,6 +53,7 @@
             this.scriptEditor.TabIndex = 0;
             this.scriptEditor.Text = "";
             this.scriptEditor.WordWrap = false;
+            this.scriptEditor.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ScriptEditor_KeyPress);
             // 
             // externalPannel
             // 

@@ -15,13 +15,6 @@ namespace GooseScript
         public MainForm()
         {
             InitializeComponent();
-
-            int[] tabs = new int[32];
-
-            for (int i = 0; i < tabs.Length; i++)
-                tabs[i] = 28 + 28 * i;
-
-            scriptEditor.SelectionTabs = tabs;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -91,10 +84,7 @@ namespace GooseScript
         private void StopScript()
         {
             if (_scrThread.IsAlive)
-            {
                 _scrThread.Abort();
-                _scrThread.Join();
-            }
 
             _scrThread = null;
             GC.Collect();
@@ -108,7 +98,7 @@ namespace GooseScript
                 $"using GooseScript;\n" +
                 $"namespace UserCode {{ " +
                 $"public static class Program {{ " +
-                $"public static void Script() { scriptEditor.Text } }} }}";
+                $"public static void Script() {{ { scriptEditor.Text } }} }} }}";
 
             var parameters = new CompilerParameters()
             {
@@ -145,5 +135,37 @@ namespace GooseScript
         private Thread _scrThread;
 
         private readonly string srcFile = "GooseScript.cs";
+
+        private void ScriptEditor_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar != '\t')
+                return;
+
+            e.Handled = true;
+
+            var editor = sender as RichTextBox;
+
+            string[] lines = editor.Lines;
+
+            int beamPos = editor.SelectionStart;
+
+            // Find current line index
+            int charSum = 0;
+            int lineIdx = 0;
+            int linePos = 0;
+
+            while (charSum <= beamPos)
+            {
+                charSum += (lines[lineIdx].Length + 1);
+                lineIdx++;
+            }
+
+            lineIdx--;
+            charSum -= (lines[lineIdx].Length + 1);
+            linePos = beamPos - charSum;
+
+            lines[lineIdx] = lines[lineIdx].Insert(linePos,"_TAB_TEST_");
+            editor.Lines = lines;
+        }
     }
 }
