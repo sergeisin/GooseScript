@@ -1,52 +1,64 @@
-﻿using System;
+﻿using System.IO;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace GooseScript
 {
-    internal static class ScriptEditor
+    internal sealed class ScriptEditor : RichTextBox
     {
-        public static void Highlight(RichTextBox editor)
+        public void LoadText()
         {
-            int pos = editor.SelectionStart;
+            if (File.Exists(_srcPath))
+                Text = File.ReadAllText(_srcPath);
 
-            Font font = new Font(editor.Font, FontStyle.Bold);
+            if (Text.Length == 0)
+                Text = DefaultText;
+
+            Highlight();
+            SelectionStart = TextLength;
+        }
+
+        public void Highlight()
+        {
+            int pos = SelectionStart;
+
+            Font font = new Font(Font, FontStyle.Bold);
 
             string[] mmsTypes = { "BOOLEAN", "INT32", "INT32U", "FLOAT32", "BIT_STRING", "OCTET_STRING" };
             foreach (var str in mmsTypes)
             {
-                HighlightText(editor, Color.Gray, font, str);
+                HighlightText(Color.DarkSlateGray, font, str);
             }
 
-            editor.SelectionStart = pos;
+            SelectionStart = pos;
         }
 
-        private static void HighlightText(RichTextBox editor, Color color, Font font, string str)
+        private void HighlightText(Color color, Font font, string str)
         {
             int pos = 0;
 
             while (true)
             {
-                pos = editor.Find(str, pos, RichTextBoxFinds.WholeWord);
+                pos = Find(str, pos, RichTextBoxFinds.WholeWord);
                 if (pos == -1)
                     break;
                 else
                     pos++;
                 
-                editor.SelectionColor = color;
-                editor.SelectionFont  = font;
+                SelectionColor = color;
+                SelectionFont  = font;
             }
         }
 
-        public static void InsertTab(RichTextBox editor)
+        public void InsertTab()
         {
-            if (editor.TextLength == 0)
+            if (TextLength == 0)
                 return;
 
-            string[] lines = editor.Lines;
+            string[] lines = Lines;
 
-            int cursorPos = editor.SelectionStart;
+            int cursorPos = SelectionStart;
 
             int sumLength = 0;
             int lineIndex = 0;
@@ -67,26 +79,26 @@ namespace GooseScript
             switch (padding)
             {
                 case 0: tab = "    "; break;
-                case 1: tab = "   "; break;
-                case 2: tab = "  "; break;
-                case 3: tab = " "; break;
+                case 1: tab =  "   "; break;
+                case 2: tab =   "  "; break;
+                case 3: tab =    " "; break;
             }
 
             string newString = lines[lineIndex].Insert(charIndex, tab);
             lines[lineIndex] = newString;
-            editor.Lines = lines;
+            Lines = lines;
 
-            editor.SelectionStart = cursorPos += tab.Length;
+            SelectionStart = cursorPos += tab.Length;
         }
 
-        public static void DeleteString(RichTextBox editor)
+        public void DeleteString()
         {
-            if (editor.TextLength == 0)
+            if (TextLength == 0)
                 return;
 
-            var lines = editor.Lines.ToList();
+            var lines = Lines.ToList();
 
-            int cursorPos = editor.SelectionStart;
+            int cursorPos = SelectionStart;
 
             int sumLength = 0;
             int lineIndex = 0;
@@ -101,12 +113,19 @@ namespace GooseScript
             sumLength -= (lines[lineIndex].Length + 1);
 
             lines.RemoveAt(lineIndex);
-            editor.Lines = lines.ToArray();
+            Lines = lines.ToArray();
 
-            editor.SelectionStart = sumLength;
+            SelectionStart = sumLength;
         }
 
-        public static readonly string DefaultText =
+        public void Save()
+        {
+            SaveFile(_srcPath, RichTextBoxStreamType.PlainText);
+        }
+
+        private readonly string _srcPath = "GooseScript.cs";
+
+        private readonly string DefaultText =
 @"{
     var publisher = new GoosePublisher(new GooseSettings()
     {
@@ -135,6 +154,5 @@ namespace GooseScript
     }
 }
 ";
-
     }
 }

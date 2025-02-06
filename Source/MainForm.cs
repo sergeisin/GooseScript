@@ -1,7 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -15,54 +14,41 @@ namespace GooseScript
         public MainForm()
         {
             InitializeComponent();
-        }
 
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            if (File.Exists(srcFile))
-            {
-                scriptEditor.Text = File.ReadAllText(srcFile);
-            }
-
-            if (scriptEditor.Text.Length == 0)
-            {
-                scriptEditor.Text = ScriptEditor.DefaultText;
-            }
-
-            scriptEditor.SelectionStart = scriptEditor.TextLength;
-
-            ScriptEditor.Highlight(scriptEditor);
+            scriptEditor.LoadText();
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            File.WriteAllText(srcFile, scriptEditor.Text);
+            scriptEditor.Save();
 
             _scrThread?.Abort();
         }
 
         private void ScriptEditor_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Tab
-            if (e.KeyChar == '\t')
+            switch (e.KeyChar)
             {
-                e.Handled = true;
-                ScriptEditor.InsertTab(sender as RichTextBox);
-            }
+                // Tab
+                case '\t':
+                    e.Handled = true;
+                    (sender as ScriptEditor).InsertTab(); 
+                    break;
 
-            // Ctrl + x
-            if (e.KeyChar == '\u0018')
-            {
-                e.Handled = true;
-                ScriptEditor.DeleteString(sender as RichTextBox);
+                // Ctrl + X
+                case '\u0018':
+                    e.Handled = true;
+                    (sender as ScriptEditor).DeleteString();
+                    break;
             }
         }
 
         private void Button_Click(object sender, EventArgs e)
         {
+            scriptEditor.Highlight();
+
             if (_scrThread is null)
             {
-                ScriptEditor.Highlight(scriptEditor);
                 StartScript();
             }
             else
@@ -154,7 +140,5 @@ namespace GooseScript
         }
 
         private Thread _scrThread;
-
-        private readonly string srcFile = "GooseScript.cs";
     }
 }
