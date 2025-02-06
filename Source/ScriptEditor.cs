@@ -1,10 +1,44 @@
-﻿using System.Linq;
+﻿using System;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace GooseScript
 {
     internal static class ScriptEditor
     {
+        public static void Highlight(RichTextBox editor)
+        {
+            int pos = editor.SelectionStart;
+
+            Font font = new Font(editor.Font, FontStyle.Bold);
+
+            string[] mmsTypes = { "BOOLEAN", "INT32", "INT32U", "FLOAT32", "BIT_STRING", "OCTET_STRING" };
+            foreach (var str in mmsTypes)
+            {
+                HighlightText(editor, Color.Gray, font, str);
+            }
+
+            editor.SelectionStart = pos;
+        }
+
+        private static void HighlightText(RichTextBox editor, Color color, Font font, string str)
+        {
+            int pos = 0;
+
+            while (true)
+            {
+                pos = editor.Find(str, pos, RichTextBoxFinds.WholeWord);
+                if (pos == -1)
+                    break;
+                else
+                    pos++;
+                
+                editor.SelectionColor = color;
+                editor.SelectionFont  = font;
+            }
+        }
+
         public static void InsertTab(RichTextBox editor)
         {
             if (editor.TextLength == 0)

@@ -30,6 +30,8 @@ namespace GooseScript
             }
 
             scriptEditor.SelectionStart = scriptEditor.TextLength;
+
+            ScriptEditor.Highlight(scriptEditor);
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -60,6 +62,7 @@ namespace GooseScript
         {
             if (_scrThread is null)
             {
+                ScriptEditor.Highlight(scriptEditor);
                 StartScript();
             }
             else
