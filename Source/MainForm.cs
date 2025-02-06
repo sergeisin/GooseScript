@@ -23,9 +23,10 @@ namespace GooseScript
             {
                 scriptEditor.Text = File.ReadAllText(srcFile);
             }
-            else
+
+            if (scriptEditor.Text.Length == 0)
             {
-                scriptEditor.Text = ScriptText.Default;
+                scriptEditor.Text = ScriptEditor.DefaultText;
             }
 
             scriptEditor.SelectionStart = scriptEditor.TextLength;
@@ -36,6 +37,23 @@ namespace GooseScript
             File.WriteAllText(srcFile, scriptEditor.Text);
 
             _scrThread?.Abort();
+        }
+
+        private void ScriptEditor_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Tab
+            if (e.KeyChar == '\t')
+            {
+                e.Handled = true;
+                ScriptEditor.InsertTab(sender as RichTextBox);
+            }
+
+            // Ctrl + x
+            if (e.KeyChar == '\u0018')
+            {
+                e.Handled = true;
+                ScriptEditor.DeleteString(sender as RichTextBox);
+            }
         }
 
         private void Button_Click(object sender, EventArgs e)
@@ -135,37 +153,5 @@ namespace GooseScript
         private Thread _scrThread;
 
         private readonly string srcFile = "GooseScript.cs";
-
-        private void ScriptEditor_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar != '\t')
-                return;
-
-            e.Handled = true;
-
-            var editor = sender as RichTextBox;
-
-            string[] lines = editor.Lines;
-
-            int beamPos = editor.SelectionStart;
-
-            // Find current line index
-            int charSum = 0;
-            int lineIdx = 0;
-            int linePos = 0;
-
-            while (charSum <= beamPos)
-            {
-                charSum += (lines[lineIdx].Length + 1);
-                lineIdx++;
-            }
-
-            lineIdx--;
-            charSum -= (lines[lineIdx].Length + 1);
-            linePos = beamPos - charSum;
-
-            lines[lineIdx] = lines[lineIdx].Insert(linePos,"_TAB_TEST_");
-            editor.Lines = lines;
-        }
     }
 }
