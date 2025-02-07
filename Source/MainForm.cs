@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CodeDom.Compiler;
-using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -47,14 +46,16 @@ namespace GooseScript
         {
             scriptEditor.HighlightText();
 
-            if (_scrThread is null)
-            {
-                StartScript();
-            }
-            else
+            if (_scrThread != null && _scrThread.IsAlive)
             {
                 StopScript();
             }
+            else
+            {
+                StartScript();
+            }
+
+            scriptEditor.Focus();
         }
 
         private void StartScript()
@@ -70,17 +71,14 @@ namespace GooseScript
                 {
                     script.Invoke(null, null);
                 }
-                catch (ThreadAbortException ex)
-                {
-                    Debug.WriteLine(ex);
-                }
+                catch (ThreadAbortException ex) { }
                 catch (Exception ex)
                 {
-                    button.BeginInvoke((Action)(() => button.Text = "Run Script"));
-
                     MessageBox.Show(ex.InnerException.Message, "Script exception",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+
+                button.BeginInvoke((Action)(() => button.Text = "Run Script"));
             });
 
             _scrThread.Start();
