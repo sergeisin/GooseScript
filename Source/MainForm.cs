@@ -71,7 +71,7 @@ namespace GooseScript
                 {
                     script.Invoke(null, null);
                 }
-                catch (ThreadAbortException ex) { }
+                catch (ThreadAbortException) { }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.InnerException.Message, "Script exception",
