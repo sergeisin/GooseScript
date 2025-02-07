@@ -56,7 +56,6 @@ namespace GooseScript
                 long ticksInMs = Stopwatch.Frequency / 1000;
 
                 int retInterval = 0;
-                long nextTicks  = 0;
 
                 var sw = Stopwatch.StartNew();
 
@@ -65,8 +64,12 @@ namespace GooseScript
                     // Retransmission mechanism defined by the standard
                     // СТО 56947007-25.040.30.309-2020
 
-                    if (sw.ElapsedTicks >= nextTicks)
+                    if (sw.ElapsedTicks >= Interlocked.Read(ref _nextTicks))
                     {
+                        // Stopping when the parent thread terminates
+                        if (!_mainThread.IsAlive)
+                            break;
+
                         if (_sqNum < 4)
                         {
                             retInterval = minTime;
@@ -83,15 +86,12 @@ namespace GooseScript
                             retInterval = maxTime;
                         }
 
-                        nextTicks = sw.ElapsedTicks + retInterval * ticksInMs;
+                        long nextTicks = sw.ElapsedTicks + retInterval * ticksInMs;
+                        Interlocked.Exchange(ref _nextTicks, nextTicks);
 
                         TAL = (uint)(retInterval * 3);
 
                         Send();
-
-                        // Stopping when the parent thread terminates
-                        if (!_mainThread.IsAlive)
-                            break;
                     }
 
                     Timer.Sleep(1);
@@ -230,6 +230,8 @@ namespace GooseScript
 
             long epochTicks = 621355968000000000;
             _timeTicks = DateTime.UtcNow.Ticks - epochTicks;
+
+            Interlocked.Exchange(ref _nextTicks, 0);
         }
 
         private void MakeDataSet()
@@ -390,6 +392,7 @@ namespace GooseScript
         private LibPcapLiveDevice _device;
 
         private Thread _mainThread;
+        private long _nextTicks;
 
         private const int MaxFrameSize = 1500;
         private const int MaxGooseSize = 1400;

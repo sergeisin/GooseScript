@@ -103,7 +103,7 @@ namespace GooseScript
                 $"using GooseScript;\n" +
                 $"namespace UserCode {{ " +
                 $"public static class Program {{ " +
-                $"public static void Script() {{ { scriptEditor.Text } }} }} }}";
+                $"public static void Script() {{ \n { scriptEditor.Text } \n}} }} }}";
 
             var parameters = new CompilerParameters()
             {

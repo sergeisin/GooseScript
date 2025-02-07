@@ -29,6 +29,7 @@
             // button
             // 
             this.button.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.button.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.button.Location = new System.Drawing.Point(5, 622);
             this.button.Margin = new System.Windows.Forms.Padding(0);
             this.button.Name = "button";
@@ -83,10 +84,10 @@
             this.Controls.Add(this.externalPannel);
             this.Controls.Add(this.button);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MinimumSize = new System.Drawing.Size(450, 548);
             this.Name = "MainForm";
-            this.Padding = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.Padding = new System.Windows.Forms.Padding(5);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GooseScript v1.2";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
