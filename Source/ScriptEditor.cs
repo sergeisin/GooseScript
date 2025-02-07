@@ -15,11 +15,10 @@ namespace GooseScript
             if (Text.Length == 0)
                 Text = DefaultText;
 
-            Highlight();
-            SelectionStart = TextLength;
+            HighlightText();
         }
 
-        public void Highlight()
+        public void HighlightText()
         {
             int pos = SelectionStart;
 
@@ -28,13 +27,26 @@ namespace GooseScript
             string[] mmsTypes = { "BOOLEAN", "INT32", "INT32U", "FLOAT32", "BIT_STRING", "OCTET_STRING" };
             foreach (var str in mmsTypes)
             {
-                HighlightText(Color.DarkSlateGray, font, str);
+                HighlightString(Color.DarkSlateGray, font, str);
             }
 
+            HighlightChars(Color.FromArgb(0x7F4A18), new char[]
+            {
+                '=', '!',
+                ':', ';',
+                '.', ',',
+                '{', '}',
+                '(', ')',
+                '[', ']'
+            });
+
             SelectionStart = pos;
+
+            ClearUndo();
+            SelectionStart = TextLength;
         }
 
-        private void HighlightText(Color color, Font font, string str)
+        private void HighlightString(Color color, Font font, string str)
         {
             int pos = 0;
 
@@ -48,6 +60,24 @@ namespace GooseScript
                 
                 SelectionColor = color;
                 SelectionFont  = font;
+            }
+        }
+
+        private void HighlightChars(Color color, char[] charsSet)
+        {
+            int pos = 0;
+
+            while (true)
+            {
+                pos = Find(charsSet, pos);
+                if (pos == -1)
+                    break;
+                else
+                {
+                    Select(pos, 1);
+                    SelectionColor = color;
+                    pos++;
+                }
             }
         }
 
@@ -129,7 +159,7 @@ namespace GooseScript
 @"{
     var publisher = new GoosePublisher(new GooseSettings()
     {
-        interfaceName = ""Ethernet X"",
+        interfaceName = ""Ethernet N"",
 
         dstMac  = 0x01FF,
         appID   = 0xDEAD,

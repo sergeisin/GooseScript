@@ -45,7 +45,7 @@ namespace GooseScript
 
         private void Button_Click(object sender, EventArgs e)
         {
-            scriptEditor.Highlight();
+            scriptEditor.HighlightText();
 
             if (_scrThread is null)
             {
@@ -101,7 +101,7 @@ namespace GooseScript
 
         private MethodInfo CompileUserScript()
         {
-            string programText = 
+            string programText =
                 $"using GooseScript;\n" +
                 $"namespace UserCode {{ " +
                 $"public static class Program {{ " +
