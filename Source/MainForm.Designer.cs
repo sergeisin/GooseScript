@@ -42,10 +42,10 @@
             // scriptEditor
             // 
             this.scriptEditor.AcceptsTab = true;
-            this.scriptEditor.BackColor = System.Drawing.Color.Ivory;
+            this.scriptEditor.BackColor = System.Drawing.Color.FromArgb(0xF7, 0xF9, 0xFB);
             this.scriptEditor.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.scriptEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scriptEditor.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.scriptEditor.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.scriptEditor.ForeColor = System.Drawing.Color.Black;
             this.scriptEditor.Location = new System.Drawing.Point(0, 0);
             this.scriptEditor.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
