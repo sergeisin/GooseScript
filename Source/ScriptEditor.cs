@@ -173,14 +173,16 @@ namespace GooseScript
         confRev = 1000,
         TAL =  400,
 
-        mmsType = MMS_TYPE.OCTET_STRING
+        mmsType = MMS_TYPE.BOOLEAN
     });
 
     publisher.Run(100, 1000);
 
-    while(true)
+    while (true)
     {
-        Timer.Sleep(500);
+        Timer.Sleep(2500);
+
+        publisher.Value = !publisher.Value;
     }
 }
 ";

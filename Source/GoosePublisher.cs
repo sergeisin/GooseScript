@@ -180,7 +180,7 @@ namespace GooseScript
 
             if (_device == null)
             {
-                throw new FormatException($"Interface '{_settings.interfaceName}' not found!");
+                throw new ArgumentException($"Interface '{_settings.interfaceName}' not found!");
             }
         }
 
@@ -216,6 +216,8 @@ namespace GooseScript
 
         private void UpdateState()
         {
+            TypeCheck();
+
             try
             {
                 MakeDataSet();
@@ -232,6 +234,55 @@ namespace GooseScript
             _timeTicks = DateTime.UtcNow.Ticks - epochTicks;
 
             Interlocked.Exchange(ref _nextTicks, 0);
+        }
+
+        private void TypeCheck()
+        {
+            Type valueType = _value.GetType();
+
+            bool typeMismatch = true;
+
+            switch (_mmsType)
+            {
+                case MMS_TYPE.BOOLEAN:
+                    if (valueType == typeof(bool))
+                        typeMismatch = false;
+                    break;
+
+                case MMS_TYPE.BIT_STRING:
+                    if (valueType == typeof(string))
+                        typeMismatch = false;
+                    break;
+
+                case MMS_TYPE.INT32:
+                    if (valueType == typeof(uint) ||
+                        valueType == typeof(int))
+                        typeMismatch = false;
+                    break;
+
+                case MMS_TYPE.INT32U:
+                    if (valueType == typeof(uint) ||
+                        valueType == typeof(int))
+                        typeMismatch = false;
+                    break;
+
+                case MMS_TYPE.FLOAT32:
+                    if (valueType == typeof(double) ||
+                        valueType == typeof(float)  ||
+                        valueType == typeof(int))
+                        typeMismatch = false;
+                    break;
+
+                case MMS_TYPE.OCTET_STRING:
+                    if (valueType == typeof(string))
+                        typeMismatch = false;
+                    break;
+            }
+
+            if (typeMismatch)
+            {
+                throw new Exception("MMS type mismatch!");
+            }
         }
 
         private void MakeDataSet()
@@ -350,7 +401,7 @@ namespace GooseScript
             set { _sqNum = value; }
         }
 
-        public object Value
+        public dynamic Value
         {
             get { return _value; }
             set

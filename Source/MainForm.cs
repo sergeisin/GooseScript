@@ -117,6 +117,12 @@ namespace GooseScript
                 parameters.ReferencedAssemblies.Add(assembly.Location);
             }
 
+            // To Do
+            string wtf_1 = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Microsoft.CSharp.dll";
+            string wtf_2 = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Core.dll";
+            parameters.ReferencedAssemblies.Add(wtf_1);
+            parameters.ReferencedAssemblies.Add(wtf_2);
+
             CompilerResults results = new CSharpCodeProvider().CompileAssemblyFromSource(parameters, programText);
 
             if (results.Errors.HasErrors)
