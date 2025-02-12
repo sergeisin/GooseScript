@@ -24,13 +24,13 @@ namespace GooseScript
             _raw_DatSet  = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.dataSet, settings.datSet);
             _raw_GoId    = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.goID,    settings.goId);
 
-            AppID   = settings.appID;
-            TAL     = settings.TAL;
-            ConfRev = settings.confRev;
-            NdsCom  = settings.ndsCom;
+            _appID   = settings.appID;
+            _TAL     = settings.TAL;
+            _confRev = settings.confRev;
+            _ndsCom  = settings.ndsCom;
 
-            Simulation_Reserved = settings.simulation_reserved;
-            Simulation_GoosePDU = settings.simulation_goosePdu;
+            _simReserved = settings.simulation_reserved;
+            _simGoosePDU = settings.simulation_goosePdu;
 
             // Reserved for AllData
             _DatSet_Buffer = new byte[MaxGooseSize];
@@ -89,8 +89,8 @@ namespace GooseScript
                         long nextTicks = sw.ElapsedTicks + retInterval * ticksInMs;
                         Interlocked.Exchange(ref _nextTicks, nextTicks);
 
-                        TAL = (uint)(retInterval * 3);
-
+                        _TAL = (uint)(retInterval * 3);
+                        
                         Send();
                     }
 
@@ -103,58 +103,61 @@ namespace GooseScript
 
         public void Send()
         {
-            int goosePduSize = GetGoosePduSize();
-            int gooseLength  = 9 + BerEncoder.GetEncoded_L_Size(goosePduSize) + goosePduSize;
-            int rawFrameSize = gooseLength + 18;
-
-            if (rawFrameSize > MaxFrameSize)
+            lock (_locker)
             {
-                throw new Exception($"Frame size '{rawFrameSize}' exceeds MTU ({MaxFrameSize} bytes)");
+                int goosePduSize = GetGoosePduSize();
+                int gooseLength  = 9 + BerEncoder.GetEncoded_L_Size(goosePduSize) + goosePduSize;
+                int rawFrameSize = gooseLength + 18;
+                
+                if (rawFrameSize > MaxFrameSize)
+                {
+                    throw new Exception($"Frame size '{rawFrameSize}' exceeds MTU ({MaxFrameSize} bytes)");
+                }
+
+                Span<byte> frame = stackalloc byte[rawFrameSize];
+                int offset = 0;
+
+                // Ethernet header
+                BerEncoder.Encode_RawBytes(frame, ref offset, _raw_Ethernet);
+
+                // Goose.AppID
+                frame[offset++] = (byte)(_appID >> 8);
+                frame[offset++] = (byte)(_appID & 0xFF);
+
+                // Gooose.Length
+                frame[offset++] = (byte)(gooseLength >> 8);
+                frame[offset++] = (byte)(gooseLength & 0xFF);
+
+                // Goose.Reserveed
+                if (_simReserved)
+                    frame[offset] = 0x80;
+                offset += 4;
+
+                // BER encoed
+                BerEncoder.Encode_TL_Only     (frame, ref offset, (byte)ASN1_Tag.goosePDU, goosePduSize);
+                BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoCbRef);
+                BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, _TAL);
+                BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_DatSet);
+                BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoId);
+                BerEncoder.Encode_TimeSt_TLV  (frame, ref offset, (byte)ASN1_Tag.TimeStamp, _timeTicks);
+                BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.stNum, _stNum);
+                BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.sqNum, _sqNum);
+                BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.simulation, _simGoosePDU);
+                BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.confRev, _confRev);
+                BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.ndsCom, _ndsCom);
+
+                frame[offset++] = (byte)ASN1_Tag.numDatSetEntries;
+                frame[offset++] = 0x01;
+                frame[offset++] = 0x02;
+
+                BerEncoder.Encode_TL_Only  (frame, ref offset, (byte)ASN1_Tag.allData, _DatSet_Size);
+                BerEncoder.Encode_RawBytes (frame, ref offset, _DatSet_Buffer, _DatSet_Size);
+
+                // Send
+                _device.SendPacket(frame.Slice(0, offset));
+
+                _sqNum = (_sqNum == uint.MaxValue) ? 1 : _sqNum + 1;
             }
-
-            Span<byte> frame = stackalloc byte[rawFrameSize];
-            int offset = 0;
-
-            // Ethernet header
-            BerEncoder.Encode_RawBytes(frame, ref offset, _raw_Ethernet);
-
-            // Goose.AppID
-            frame[offset++] = (byte)(AppID >> 8);
-            frame[offset++] = (byte)(AppID & 0xFF);
-
-            // Gooose.Length
-            frame[offset++] = (byte)(gooseLength >> 8);
-            frame[offset++] = (byte)(gooseLength & 0xFF);
-
-            // Goose.Reserveed
-            if (Simulation_Reserved)
-                frame[offset] = 0x80;
-            offset += 4;
-
-            // BER encoed
-            BerEncoder.Encode_TL_Only     (frame, ref offset, (byte)ASN1_Tag.goosePDU, goosePduSize);
-            BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoCbRef);
-            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, TAL);
-            BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_DatSet);
-            BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoId);
-            BerEncoder.Encode_TimeSt_TLV  (frame, ref offset, (byte)ASN1_Tag.TimeStamp, _timeTicks);
-            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.stNum, _stNum);
-            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.sqNum, _sqNum);
-            BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.simulation, Simulation_GoosePDU);
-            BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.confRev, ConfRev);
-            BerEncoder.Encode_Boolean_TLV (frame, ref offset, (byte)ASN1_Tag.ndsCom, NdsCom);
-
-            frame[offset++] = (byte)ASN1_Tag.numDatSetEntries;
-            frame[offset++] = 0x01;
-            frame[offset++] = 0x02;
-
-            BerEncoder.Encode_TL_Only  (frame, ref offset, (byte)ASN1_Tag.allData, _DatSet_Size);
-            BerEncoder.Encode_RawBytes (frame, ref offset, _DatSet_Buffer, _DatSet_Size);
-
-            // Send
-            _device.SendPacket(frame.Slice(0, offset));
-
-            _sqNum = (_sqNum == uint.MaxValue) ? 1 : _sqNum + 1;
         }
 
         public void SendFew(int count, int sleepTime)
@@ -338,7 +341,7 @@ namespace GooseScript
             goosePduSize += 3;
 
             // Encoded ConfRev size
-            goosePduSize += (2 + BerEncoder.GetEncoded_INT32U_Size(ConfRev));
+            goosePduSize += (2 + BerEncoder.GetEncoded_INT32U_Size(_confRev));
 
             // Encoded Simulation size
             goosePduSize += 3;
@@ -359,7 +362,7 @@ namespace GooseScript
             goosePduSize += _raw_DatSet.Length;
 
             // Encoded TAL size
-            goosePduSize += (2 + BerEncoder.GetEncoded_INT32U_Size(TAL));
+            goosePduSize += (2 + BerEncoder.GetEncoded_INT32U_Size(_TAL));
 
             // Encoded goCbRef size
             goosePduSize += _raw_GoCbRef.Length;
@@ -367,67 +370,96 @@ namespace GooseScript
             return goosePduSize;
         }
 
-        public uint AppID   { get; set; }
-        public uint TAL     { get; set; }
-        public uint ConfRev { get; set; }
-        public bool NdsCom  { get; set; }
-
-        public bool Simulation_Reserved { get; set; }
-        public bool Simulation_GoosePDU { get; set; }
-
-        public bool Simulation
+        public dynamic Value
         {
             get
             {
-                return Simulation_Reserved || Simulation_GoosePDU;
+                lock (_locker)
+                {
+                    return _value;
+                }
             }
-
             set
             {
-                Simulation_GoosePDU = value;
-                Simulation_Reserved = value;
-            }
-        }
-
-        public uint StNum
-        {
-            get { return _stNum; }
-            set { _stNum = value; }
-        }
-
-        public uint SqNum
-        {
-            get { return _sqNum; }
-            set { _sqNum = value; }
-        }
-
-        public dynamic Value
-        {
-            get { return _value; }
-            set
-            {
-                _value = value;
-                UpdateState();
+                lock (_locker)
+                {
+                    _value = value;
+                    UpdateState();
+                }
             }
         }
 
         public Quality Quality
         {
-            get { return _quality; }
+            get
+            {
+                lock (_locker)
+                {
+                    return _quality;
+                }
+            }
             set
             {
-                _quality = value;
-                UpdateState();
+                lock (_locker)
+                {
+                    _quality = value;
+                    UpdateState();
+                }
             }
+        }
+
+        public bool Simulation
+        {
+            get
+            {
+                lock (_locker)
+                {
+                    return _simGoosePDU || _simReserved;
+                }
+            }
+            set
+            {
+                lock (_locker)
+                {
+                    _simReserved = value;
+                    _simGoosePDU = value;
+                }
+            }
+        }
+
+        public uint StNum
+        {
+            get { lock (_locker) { return _stNum;  } }
+            set { lock (_locker) { _stNum = value; } }
+        }
+
+        public uint SqNum
+        {
+            get { lock (_locker) { return _sqNum;  } }
+            set { lock (_locker) { _sqNum = value; } }
+        }
+
+        public uint TAL
+        {
+            get { lock (_locker) { return _TAL;  } }
+            set { lock (_locker) { _TAL = value; } }
         }
 
         private object   _value;
         private MMS_TYPE _mmsType;
         private Quality  _quality;
 
+        private uint _appID;
+        private uint _confRev;
+        private uint _TAL;
+
         private uint _stNum = 0;
         private uint _sqNum = 0;
         private long _timeTicks;
+
+        private bool _ndsCom;
+        private bool _simReserved;
+        private bool _simGoosePDU;
 
         private byte[] _raw_Ethernet;
         private byte[] _raw_GoCbRef;
@@ -444,6 +476,8 @@ namespace GooseScript
 
         private Thread _mainThread;
         private long _nextTicks;
+
+        private object _locker = new object();
 
         private const int MaxFrameSize = 1500;
         private const int MaxGooseSize = 1400;
