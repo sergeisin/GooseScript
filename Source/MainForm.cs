@@ -67,18 +67,32 @@ namespace GooseScript
 
             _scrThread = new Thread(() =>
             {
+                string exType = null;
+                string exMsg = null;
+
                 try
                 {
                     script.Invoke(null, null);
                 }
-                catch (ThreadAbortException) { }
+                catch (ThreadAbortException)
+                { }
+                catch (TargetInvocationException ex)
+                {
+                    exType = "Operation error";
+                    exMsg = ex.InnerException.Message;
+                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.InnerException.Message, "Script exception",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    exType = "Script error";
+                    exMsg = ex.InnerException.Message;
                 }
 
                 button.BeginInvoke((Action)(() => button.Text = "Run Script"));
+
+                if (exType != null)
+                {
+                    MessageBox.Show(exMsg, exType, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             });
 
             _scrThread.Start();
@@ -112,16 +126,11 @@ namespace GooseScript
                 CompilerOptions = "/optimize+"
             };
 
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                parameters.ReferencedAssemblies.Add(assembly.Location);
-            }
+            var references = parameters.ReferencedAssemblies;
 
-            // To Do
-            string wtf_1 = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Microsoft.CSharp.dll";
-            string wtf_2 = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Core.dll";
-            parameters.ReferencedAssemblies.Add(wtf_1);
-            parameters.ReferencedAssemblies.Add(wtf_2);
+            references.Add(typeof(GoosePublisher)                          .Assembly.Location); // GooseScript.exe
+            references.Add(typeof(Microsoft.CSharp.RuntimeBinder.Binder)   .Assembly.Location); // Microsoft.CSharp.dll
+            references.Add(typeof(System.Runtime.CompilerServices.CallSite).Assembly.Location); // System.Core.dll
 
             CompilerResults results = new CSharpCodeProvider().CompileAssemblyFromSource(parameters, programText);
 
@@ -132,8 +141,7 @@ namespace GooseScript
                 foreach (CompilerError error in results.Errors)
                     sb.AppendLine(error.ErrorText);
 
-                MessageBox.Show(sb.ToString(), "Compile error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(sb.ToString(), "Compile error", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
