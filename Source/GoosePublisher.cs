@@ -101,6 +101,11 @@ namespace GooseScript
             });
         }
 
+        public void Stop()
+        {
+            _running = false;
+        }
+
         public void Send()
         {
             lock (_locker)
