@@ -22,6 +22,9 @@ namespace GooseScript
         {
             int pos = SelectionStart;
 
+            SelectAll();
+            SelectionColor = Color.Black;
+
             Font font = new Font(Font, FontStyle.Bold);
 
             string[] mmsTypes = { "BOOLEAN", "INT32", "INT32U", "FLOAT32", "BIT_STRING", "OCTET_STRING" };
