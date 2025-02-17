@@ -9,6 +9,9 @@ namespace GooseScript
         [STAThread]
         static void Main()
         {
+            dynamic createRuntimeTypeCacheNow = 42;
+                    createRuntimeTypeCacheNow++;
+
             if (Environment.OSVersion.Version.Major >= 6)
             {
                 SetProcessDPIAware();

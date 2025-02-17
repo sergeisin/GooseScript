@@ -114,10 +114,11 @@ namespace GooseScript
         private MethodInfo CompileUserScript()
         {
             string programText =
-                $"using GooseScript;\n" +
-                $"namespace UserCode {{ " +
-                $"public static class Program {{ " +
-                $"public static void Script() {{ \n { scriptEditor.Text } \n}} }} }}";
+                "using GooseScript; \n" +
+                "namespace UserCode { \n" +
+                "public static class Program { \n" +
+                "public static void Script() { \n" +
+                $"{scriptEditor.Text} \n }} }} }}";
 
             var parameters = new CompilerParameters()
             {
