@@ -27,6 +27,7 @@ namespace GooseScript
         ndsCom            = 0x89,
         numDatSetEntries  = 0x8a,
         allData           = 0xab,
+        structure         = 0xa2,
     }
 
     public static class Dbpos

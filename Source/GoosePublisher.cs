@@ -35,8 +35,13 @@ namespace GooseScript
             _mmsType = settings.mmsType;
             _value   = settings.initVal;
 
+            _isStruct     = settings.isStruct;
             _hasTimeStamp = settings.hasTimeStamp;
-            _numDataSetEntries = _hasTimeStamp ? 3u : 2u;
+
+            if (_isStruct)
+                _numDataSetEntries = 1u;
+            else
+                _numDataSetEntries = _hasTimeStamp ? 3u : 2u;
 
             // Reserved for AllData
             _DatSet_Buffer = new byte[MaxGooseSize];
@@ -158,7 +163,13 @@ namespace GooseScript
                 frame[offset++] = 0x01;
                 frame[offset++] = (byte)_numDataSetEntries;
 
-                BerEncoder.Encode_TL_Only  (frame, ref offset, (byte)ASN1_Tag.allData, _DatSet_Size);
+                BerEncoder.Encode_TL_Only(frame, ref offset, (byte)ASN1_Tag.allData, _AllData_Size);
+
+                if (_isStruct)
+                {
+                    BerEncoder.Encode_TL_Only(frame, ref offset, (byte)ASN1_Tag.structure, _DatSet_Size);
+                }
+
                 BerEncoder.Encode_RawBytes (frame, ref offset, _DatSet_Buffer, _DatSet_Size);
 
                 // Send
@@ -336,6 +347,15 @@ namespace GooseScript
             {
                 BerEncoder.Encode_TimeSt_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)MMS_TYPE.TimeStamp, _timeTicks);
             }
+
+            // ToDo: check this
+            _AllData_Size = _DatSet_Size;
+
+            if (_isStruct)
+            {
+                _AllData_Size += 1;
+                _AllData_Size += BerEncoder.GetEncoded_L_Size(_AllData_Size);
+            }
         }
 
         private int GetGoosePduSize()
@@ -344,8 +364,8 @@ namespace GooseScript
 
             // Encoded AllData size
             goosePduSize += 1;
-            goosePduSize += BerEncoder.GetEncoded_L_Size(_DatSet_Size);
-            goosePduSize += _DatSet_Size;
+            goosePduSize += BerEncoder.GetEncoded_L_Size(_AllData_Size);
+            goosePduSize += _AllData_Size;
 
             // Encoded NumDataSetEntries size
             goosePduSize += 3;
@@ -474,6 +494,7 @@ namespace GooseScript
         private bool _simReserved;
         private bool _simGoosePDU;
 
+        private bool _isStruct;
         private bool _hasTimeStamp;
         private uint _numDataSetEntries;
 
@@ -484,6 +505,8 @@ namespace GooseScript
 
         private byte[] _DatSet_Buffer;
         private int    _DatSet_Size;
+
+        private int    _AllData_Size;
 
         private bool _running;
 

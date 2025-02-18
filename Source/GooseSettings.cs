@@ -85,6 +85,11 @@ namespace GooseScript
         public bool hasTimeStamp;
 
         /// <summary>
+        /// DO encoded as a structure
+        /// </summary>
+        public bool isStruct;
+
+        /// <summary>
         /// Validate settings and set default initVal
         /// </summary>
         public void Init()
