@@ -224,9 +224,9 @@ namespace GooseScript
 
         public static void Encode_Quality_TLV(Span<byte> frame, ref int offset, Quality q)
         {
-            frame[offset++] = 0x84;
-            frame[offset++] = 0x03;
-            frame[offset++] = 0x03;
+            frame[offset++] = 0x84; // BitString MMS type
+            frame[offset++] = 0x03; // Length
+            frame[offset++] = 0x03; // Padding
 
             byte b1 = 0;
             byte b2 = 0;

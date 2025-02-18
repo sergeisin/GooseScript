@@ -153,7 +153,7 @@ namespace GooseScript
 
                 frame[offset++] = (byte)ASN1_Tag.numDatSetEntries;
                 frame[offset++] = 0x01;
-                frame[offset++] = 0x02;
+                frame[offset++] = 0x03;
 
                 BerEncoder.Encode_TL_Only  (frame, ref offset, (byte)ASN1_Tag.allData, _DatSet_Size);
                 BerEncoder.Encode_RawBytes (frame, ref offset, _DatSet_Buffer, _DatSet_Size);
@@ -226,6 +226,9 @@ namespace GooseScript
         {
             TypeCheck();
 
+            long epochTicks = 621355968000000000;
+            _timeTicks = DateTime.UtcNow.Ticks - epochTicks;
+
             try
             {
                 MakeDataSet();
@@ -238,15 +241,12 @@ namespace GooseScript
             _stNum = (_sqNum == uint.MaxValue) ? 1 : _stNum + 1;
             _sqNum = 0;
 
-            long epochTicks = 621355968000000000;
-            _timeTicks = DateTime.UtcNow.Ticks - epochTicks;
-
             Interlocked.Exchange(ref _nextTicks, 0);
         }
 
         private void TypeCheck()
         {
-            Type valueType = _value.GetType();
+            Type valueType = _value?.GetType();
 
             bool typeMismatch = true;
 
@@ -285,6 +285,9 @@ namespace GooseScript
                     if (valueType == typeof(string))
                         typeMismatch = false;
                     break;
+
+                case MMS_TYPE.TimeStamp:
+                    throw new Exception("Unknown MMS data type");
             }
 
             if (typeMismatch)
@@ -322,12 +325,10 @@ namespace GooseScript
                 case MMS_TYPE.OCTET_STRING:
                     BerEncoder.Encode_OctetString_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToString(_value));
                     break;
-
-                default:
-                    throw new Exception("Unknown MMS data type");
             }
 
             BerEncoder.Encode_Quality_TLV(_DatSet_Buffer, ref _DatSet_Size, _quality);
+            BerEncoder.Encode_TimeSt_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)MMS_TYPE.TimeStamp, _timeTicks);
         }
 
         private int GetGoosePduSize()

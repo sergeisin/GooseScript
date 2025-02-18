@@ -8,9 +8,10 @@ namespace GooseScript
         INT32        = 0x85,
         INT32U       = 0x86,
         FLOAT32      = 0x87,
-        OCTET_STRING = 0x89
+        OCTET_STRING = 0x89,
+        TimeStamp    = 0x91,
     }
-
+    
     public enum ASN1_Tag : byte
     {
         goosePDU          = 0x61,
@@ -25,7 +26,7 @@ namespace GooseScript
         confRev           = 0x88,
         ndsCom            = 0x89,
         numDatSetEntries  = 0x8a,
-        allData           = 0xab
+        allData           = 0xab,
     }
 
     public static class Dbpos

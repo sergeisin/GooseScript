@@ -150,6 +150,9 @@ namespace GooseScript
                     initVal = initVal ?? "6769746875622e636f6d2f73657267656973696E";
                     break;
 
+                case MMS_TYPE.TimeStamp:
+                    throw new ArgumentException("MMS type 'TimeStamp' is not available as stVal type");
+
                 default:
                     mmsType = MMS_TYPE.BOOLEAN;
                     initVal = false;
