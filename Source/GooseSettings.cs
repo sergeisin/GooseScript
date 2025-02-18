@@ -80,6 +80,11 @@ namespace GooseScript
         public object initVal;
 
         /// <summary>
+        /// Adding TimeStamp attribute to DataSet
+        /// </summary>
+        public bool hasTimeStamp;
+
+        /// <summary>
         /// Validate settings and set default initVal
         /// </summary>
         public void Init()

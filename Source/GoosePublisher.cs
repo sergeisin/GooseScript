@@ -32,11 +32,14 @@ namespace GooseScript
             _simReserved = settings.simulation_reserved;
             _simGoosePDU = settings.simulation_goosePdu;
 
-            // Reserved for AllData
-            _DatSet_Buffer = new byte[MaxGooseSize];
-
             _mmsType = settings.mmsType;
             _value   = settings.initVal;
+
+            _hasTimeStamp = settings.hasTimeStamp;
+            _numDataSetEntries = _hasTimeStamp ? 3u : 2u;
+
+            // Reserved for AllData
+            _DatSet_Buffer = new byte[MaxGooseSize];
 
             UpdateState();
         }
@@ -153,7 +156,7 @@ namespace GooseScript
 
                 frame[offset++] = (byte)ASN1_Tag.numDatSetEntries;
                 frame[offset++] = 0x01;
-                frame[offset++] = 0x03;
+                frame[offset++] = (byte)_numDataSetEntries;
 
                 BerEncoder.Encode_TL_Only  (frame, ref offset, (byte)ASN1_Tag.allData, _DatSet_Size);
                 BerEncoder.Encode_RawBytes (frame, ref offset, _DatSet_Buffer, _DatSet_Size);
@@ -328,7 +331,11 @@ namespace GooseScript
             }
 
             BerEncoder.Encode_Quality_TLV(_DatSet_Buffer, ref _DatSet_Size, _quality);
-            BerEncoder.Encode_TimeSt_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)MMS_TYPE.TimeStamp, _timeTicks);
+
+            if (_hasTimeStamp)
+            {
+                BerEncoder.Encode_TimeSt_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)MMS_TYPE.TimeStamp, _timeTicks);
+            }
         }
 
         private int GetGoosePduSize()
@@ -466,6 +473,9 @@ namespace GooseScript
         private bool _ndsCom;
         private bool _simReserved;
         private bool _simGoosePDU;
+
+        private bool _hasTimeStamp;
+        private uint _numDataSetEntries;
 
         private byte[] _raw_Ethernet;
         private byte[] _raw_GoCbRef;
