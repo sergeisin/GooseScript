@@ -187,7 +187,7 @@ namespace GooseScript
             }
         }
 
-        public static void Encode_FLOAT_TLV(Span<byte> frame, ref int offset, byte tag, float value)
+        public static void Encode_FLOAT32_TLV(Span<byte> frame, ref int offset, byte tag, float value)
         {
             byte[] floatBytes = BitConverter.GetBytes(value);
 

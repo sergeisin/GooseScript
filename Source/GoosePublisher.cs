@@ -32,19 +32,23 @@ namespace GooseScript
             _simReserved = settings.simulation_reserved;
             _simGoosePDU = settings.simulation_goosePdu;
 
-            _mmsType = settings.mmsType;
-            _value   = settings.initVal;
-
-            _isStruct     = settings.isStruct;
-            _hasTimeStamp = settings.hasTimeStamp;
+            _mmsType  = settings.mmsType;
+            _value    = settings.initVal;
+            _isStruct = settings.isStruct;
 
             if (_isStruct)
-                _numDataSetEntries = 1u;
+            {
+                _hasTimeStamp = true;
+                _numDsEntries = 1u;
+            }
             else
-                _numDataSetEntries = _hasTimeStamp ? 3u : 2u;
+            {
+                _hasTimeStamp = settings.hasTimeStamp;
+                _numDsEntries = _hasTimeStamp ? 3u : 2u;
+            }
 
-            // Reserved for AllData
-            _DatSet_Buffer = new byte[MaxGooseSize];
+            // Reserved for data set values
+            _dataBuf = new byte[MaxGooseSize];
 
             UpdateState();
         }
@@ -146,7 +150,7 @@ namespace GooseScript
                     frame[offset] = 0x80;
                 offset += 4;
 
-                // BER encoed
+                // BER encode
                 BerEncoder.Encode_TL_Only     (frame, ref offset, (byte)ASN1_Tag.goosePDU, goosePduSize);
                 BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoCbRef);
                 BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, _TAL);
@@ -161,16 +165,17 @@ namespace GooseScript
 
                 frame[offset++] = (byte)ASN1_Tag.numDatSetEntries;
                 frame[offset++] = 0x01;
-                frame[offset++] = (byte)_numDataSetEntries;
+                frame[offset++] = (byte)_numDsEntries;
 
-                BerEncoder.Encode_TL_Only(frame, ref offset, (byte)ASN1_Tag.allData, _AllData_Size);
+                BerEncoder.Encode_TL_Only(frame, ref offset, (byte)ASN1_Tag.allData, _allDataSize);
 
                 if (_isStruct)
                 {
-                    BerEncoder.Encode_TL_Only(frame, ref offset, (byte)ASN1_Tag.structure, _DatSet_Size);
+                    // AllData contains other TLV with tag 0xA2 (structure)
+                    BerEncoder.Encode_TL_Only(frame, ref offset, (byte)ASN1_Tag.structure, _dataSize);
                 }
 
-                BerEncoder.Encode_RawBytes (frame, ref offset, _DatSet_Buffer, _DatSet_Size);
+                BerEncoder.Encode_RawBytes(frame, ref offset, _dataBuf, _dataSize);
 
                 // Send
                 _device.SendPacket(frame.Slice(0, offset));
@@ -312,49 +317,52 @@ namespace GooseScript
 
         private void MakeDataSet()
         {
-            _DatSet_Size = 0;
+            _dataSize = 0;
 
             switch (_mmsType)
             {
                 case MMS_TYPE.BOOLEAN:
-                    BerEncoder.Encode_Boolean_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToBoolean(_value));
+                    BerEncoder.Encode_Boolean_TLV(_dataBuf, ref _dataSize, (byte)_mmsType, Convert.ToBoolean(_value));
                     break;
 
                 case MMS_TYPE.INT32:
-                    BerEncoder.Encode_INT32S_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToInt32(_value));
+                    BerEncoder.Encode_INT32S_TLV(_dataBuf, ref _dataSize, (byte)_mmsType, Convert.ToInt32(_value));
                     break;
 
                 case MMS_TYPE.INT32U:
-                    BerEncoder.Encode_INT32U_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToUInt32(_value));
+                    BerEncoder.Encode_INT32U_TLV(_dataBuf, ref _dataSize, (byte)_mmsType, Convert.ToUInt32(_value));
                     break;
 
                 case MMS_TYPE.FLOAT32:
-                    BerEncoder.Encode_FLOAT_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToSingle(_value));
+                    BerEncoder.Encode_FLOAT32_TLV(_dataBuf, ref _dataSize, (byte)_mmsType, Convert.ToSingle(_value));
                     break;
 
                 case MMS_TYPE.BIT_STRING:
-                    BerEncoder.Encode_BitString_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToString(_value));
+                    BerEncoder.Encode_BitString_TLV(_dataBuf, ref _dataSize, (byte)_mmsType, Convert.ToString(_value));
                     break;
 
                 case MMS_TYPE.OCTET_STRING:
-                    BerEncoder.Encode_OctetString_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)_mmsType, Convert.ToString(_value));
+                    BerEncoder.Encode_OctetString_TLV(_dataBuf, ref _dataSize, (byte)_mmsType, Convert.ToString(_value));
                     break;
             }
 
-            BerEncoder.Encode_Quality_TLV(_DatSet_Buffer, ref _DatSet_Size, _quality);
+            BerEncoder.Encode_Quality_TLV(_dataBuf, ref _dataSize, _quality);
 
             if (_hasTimeStamp)
             {
-                BerEncoder.Encode_TimeSt_TLV(_DatSet_Buffer, ref _DatSet_Size, (byte)MMS_TYPE.TimeStamp, _timeTicks);
+                BerEncoder.Encode_TimeSt_TLV(_dataBuf, ref _dataSize, (byte)MMS_TYPE.TimeStamp, _timeTicks);
             }
-
-            // ToDo: check this
-            _AllData_Size = _DatSet_Size;
 
             if (_isStruct)
             {
-                _AllData_Size += 1;
-                _AllData_Size += BerEncoder.GetEncoded_L_Size(_AllData_Size);
+                // AllData contains other TLV with tag 0xA2 (structure)
+                int encoded_TLV_Size = 1 + BerEncoder.GetEncoded_L_Size(_dataSize) + _dataSize;
+
+                _allDataSize = encoded_TLV_Size;
+            }
+            else
+            {
+                _allDataSize = _dataSize;
             }
         }
 
@@ -364,8 +372,8 @@ namespace GooseScript
 
             // Encoded AllData size
             goosePduSize += 1;
-            goosePduSize += BerEncoder.GetEncoded_L_Size(_AllData_Size);
-            goosePduSize += _AllData_Size;
+            goosePduSize += BerEncoder.GetEncoded_L_Size(_allDataSize);
+            goosePduSize += _allDataSize;
 
             // Encoded NumDataSetEntries size
             goosePduSize += 3;
@@ -496,17 +504,16 @@ namespace GooseScript
 
         private bool _isStruct;
         private bool _hasTimeStamp;
-        private uint _numDataSetEntries;
+        private uint _numDsEntries;
 
         private byte[] _raw_Ethernet;
         private byte[] _raw_GoCbRef;
         private byte[] _raw_DatSet;
         private byte[] _raw_GoId;
 
-        private byte[] _DatSet_Buffer;
-        private int    _DatSet_Size;
-
-        private int    _AllData_Size;
+        private byte[] _dataBuf;
+        private int    _dataSize;
+        private int    _allDataSize;
 
         private bool _running;
 
