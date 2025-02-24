@@ -33,14 +33,15 @@ namespace GooseScript
                 HighlightString(Color.DarkSlateGray, font, str);
             }
 
-            HighlightChars(Color.FromArgb(0x7F4A18), new char[]
+            HighlightChars(Color.FromArgb(0x8C4B0E), new char[]
             {
                 '=', '!',
                 ':', ';',
                 '.', ',',
                 '{', '}',
                 '(', ')',
-                '[', ']'
+                '[', ']',
+                '"', '\'',
             });
 
             SelectionStart = pos;
