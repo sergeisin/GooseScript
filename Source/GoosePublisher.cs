@@ -193,6 +193,11 @@ namespace GooseScript
             }
         }
 
+        public void SaveSCL(string iedName)
+        {
+            XmlBuilder.SaveSCL(_settings, iedName);
+        }
+
         private void OpenDevice()
         {
             foreach (var liveDevice in LibPcapLiveDeviceList.Instance)

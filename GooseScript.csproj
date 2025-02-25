@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\BerEncoder.cs" />
+    <Compile Include="Source\XmlBuilder.cs" />
     <Compile Include="Source\ScriptEditor.cs">
       <SubType>Component</SubType>
     </Compile>
