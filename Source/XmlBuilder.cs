@@ -70,6 +70,8 @@ namespace GooseScript
                 // SCL type Octet64 mapped on MMS type OCTET_STRING
             }
             
+            var vlanID = settings.hasVlan ? settings.vlanID : 0;
+            
             sb.Replace("_DA_TYPE_", daType);
             sb.Replace("_LD_NAME_", ldName);
             sb.Replace("_IED_NAME_", iedName);
@@ -78,9 +80,9 @@ namespace GooseScript
             sb.Replace("_GOID_", settings.goId);
             sb.Replace("_CONF_REV_", settings.confRev.ToString());
             sb.Replace("_APP_ID_", settings.appID.ToString("X4"));
-            sb.Replace("_VLAN_ID_", settings.vlanID.ToString("X3"));
+            sb.Replace("_VLAN_ID_", vlanID.ToString("X3"));
             sb.Replace("_DST_MAC_", settings.dstMac.ToString("X4").Insert(2, "-"));
-
+            
             File.WriteAllText("GooseScript.cid", sb.ToString());
         }
 
@@ -93,7 +95,6 @@ namespace GooseScript
                 return false;
 
             string[] sArr = objRef.Split(new string[] { sep }, StringSplitOptions.RemoveEmptyEntries);
-
             if (sArr.Length != 2)
                 return false;
 
@@ -108,21 +109,21 @@ namespace GooseScript
         #region SCL templates (do not format)
 
         private readonly static string FCDA_DO = @"
-              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST'/>";
+              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' />";
 
         private readonly static string FCDA_DA2 = @"
-              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='stVal'/>
-              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='q'/>";
+              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='stVal' />
+              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='q' />";
 
         private readonly static string FCDA_DA3 = @"
-              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='stVal'/>
-              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='q'/>
-              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='t'/>";
+              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='stVal' />
+              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='q' />
+              <FCDA ldInst='_LD_NAME_' lnClass='LLN0' doName='Value' fc='ST' daName='t' />";
 
         private readonly static string SCL_Template =
 @"<?xml version='1.0' encoding='utf-8'?>
 <SCL xmlns='http://www.iec.ch/61850/2003/SCL' version='2007' revision='B'>
-  <Header id='GooseScript' version='1.2'/>
+  <Header id='GooseScript' version='1.2' />
   <Communication>
     <SubNetwork name='SN'>
       <ConnectedAP iedName='_IED_NAME_' apName='AP'>
@@ -146,7 +147,7 @@ namespace GooseScript
           <LN0 lnType='LN_Type' lnClass='LLN0' inst=''>
             <DataSet name='_DATA_SET_'>_FCDA_
             </DataSet>
-            <GSEControl type='GOOSE' name='_GOCB_NAME_' datSet='_DATA_SET_' confRev='_CONF_REV_' appID='_GOID_'/>
+            <GSEControl type='GOOSE' name='_GOCB_NAME_' datSet='_DATA_SET_' confRev='_CONF_REV_' appID='_GOID_' />
           </LN0>
         </LDevice>
       </Server>
@@ -154,12 +155,12 @@ namespace GooseScript
   </IED>
   <DataTypeTemplates>
     <LNodeType id='LN_Type' lnClass='LLN0'>
-      <DO type='DO_Type' name='Value'/>
+      <DO type='DO_Type' name='Value' />
     </LNodeType>
     <DOType id='DO_Type' cdc='SPS'>
-      <DA name='stVal' fc='ST' bType='_DA_TYPE_'/>
-      <DA name='q' fc='ST' bType='Quality'/>
-      <DA name='t' fc='ST' bType='Timestamp'/>
+      <DA name='stVal' fc='ST' bType='_DA_TYPE_' />
+      <DA name='q' fc='ST' bType='Quality' />
+      <DA name='t' fc='ST' bType='Timestamp' />
     </DOType>
   </DataTypeTemplates>
 </SCL>
