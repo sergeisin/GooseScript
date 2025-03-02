@@ -45,9 +45,9 @@ namespace GooseScript
         public string goId;
 
         /// <summary>
-        /// Configuration revision
+        /// Configuration revision. Default - 1.
         /// </summary>
-        public uint confRev;
+        public uint confRev = 1;
 
         /// <summary>
         /// Simulation flag in Reserved1 section
@@ -65,9 +65,9 @@ namespace GooseScript
         public bool ndsCom;
 
         /// <summary>
-        /// Time allowed to live (ms)
+        /// Time allowed to live. Default - 1000 ms.
         /// </summary>
-        public uint TAL;
+        public uint TAL = 1000;
 
         /// <summary>
         /// MMS Type of stVal
