@@ -25,7 +25,9 @@ namespace GooseScript
             int pos = SelectionStart;
 
             SelectAll();
-            SelectionColor = Color.Black;
+            SelectionFont = Font;
+            SelectionColor = ForeColor;
+            SelectionBackColor = BackColor;
 
             Font font = new Font(Font, FontStyle.Bold);
 
