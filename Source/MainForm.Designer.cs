@@ -33,7 +33,7 @@
             this.button.Location = new System.Drawing.Point(5, 572);
             this.button.Margin = new System.Windows.Forms.Padding(0);
             this.button.Name = "button";
-            this.button.Size = new System.Drawing.Size(484, 34);
+            this.button.Size = new System.Drawing.Size(494, 34);
             this.button.TabIndex = 0;
             this.button.TabStop = false;
             this.button.Text = "Run Script";
@@ -47,7 +47,7 @@
             this.externalPannel.Location = new System.Drawing.Point(5, 5);
             this.externalPannel.Name = "externalPannel";
             this.externalPannel.Padding = new System.Windows.Forms.Padding(1, 1, 1, 5);
-            this.externalPannel.Size = new System.Drawing.Size(484, 567);
+            this.externalPannel.Size = new System.Drawing.Size(494, 567);
             this.externalPannel.TabIndex = 1;
             // 
             // internalPanel
@@ -57,7 +57,7 @@
             this.internalPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.internalPanel.Location = new System.Drawing.Point(1, 1);
             this.internalPanel.Name = "internalPanel";
-            this.internalPanel.Size = new System.Drawing.Size(482, 561);
+            this.internalPanel.Size = new System.Drawing.Size(492, 561);
             this.internalPanel.TabIndex = 0;
             // 
             // scriptEditor
@@ -70,7 +70,7 @@
             this.scriptEditor.ForeColor = System.Drawing.Color.Black;
             this.scriptEditor.Location = new System.Drawing.Point(0, 0);
             this.scriptEditor.Name = "scriptEditor";
-            this.scriptEditor.Size = new System.Drawing.Size(480, 559);
+            this.scriptEditor.Size = new System.Drawing.Size(490, 559);
             this.scriptEditor.TabIndex = 0;
             this.scriptEditor.Text = "";
             this.scriptEditor.WordWrap = false;
@@ -80,7 +80,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(494, 611);
+            this.ClientSize = new System.Drawing.Size(504, 611);
             this.Controls.Add(this.externalPannel);
             this.Controls.Add(this.button);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

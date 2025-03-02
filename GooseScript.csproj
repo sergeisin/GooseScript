@@ -115,6 +115,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <Content Include="Examples\Example_Boolean.txt" />
+    <Content Include="Examples\Example_Dbpos.txt" />
+    <Content Include="Examples\Example_Numeric.txt" />
+    <Content Include="Examples\Example_Octets.txt" />
+    <Content Include="Examples\Example_Quality.txt" />
+    <Content Include="Examples\Manual.txt" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
@@ -126,5 +132,6 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

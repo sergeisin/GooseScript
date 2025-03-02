@@ -173,7 +173,6 @@ namespace GooseScript
         appID   = 0xDEAD,
         vlanID  = 0x005,
         hasVlan = true,
-        confRev = 1000,
 
         gocbRef = ""IED1SYS/LLN0$GO$GSE1"",
         datSet  = ""IED1SYS/LLN0$DataSet"",
