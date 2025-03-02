@@ -61,6 +61,7 @@ namespace GooseScript
             if (maxTime > 10_000)
                 maxTime = 10_000;
 
+            _sqNum = 0;
             _running = true;
 
             Task.Run(() =>
