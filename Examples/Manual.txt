@@ -15,7 +15,7 @@
     sets.goId    = "IED1SYS/LLN0.GSE1";         // Goose ID
 
     sets.TAL     =  2000;                       // Time allowed ti live (ms)
-    sets.confRev = 10000;                       // ConfRev
+    sets.confRev = 10000;                       // Configuration revision
 
     sets.simulation_reserved = false;           // Simulation flag in Reserved 1
     sets.simulation_goosePdu = false;           // Simulation flag in GoosePDU
@@ -60,9 +60,9 @@
     pub.StNum = 42;
     pub.SqNum = 43;
 
-    pub.Simulation = true;
+    pub.Simulation = true;                      // Set both simulation flags to true
     pub.Send();
-
+    
     // Quality features
     Quality q = new Quality();
 

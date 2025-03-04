@@ -115,11 +115,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
-    <Content Include="Examples\Example_Boolean.txt" />
-    <Content Include="Examples\Example_Dbpos.txt" />
-    <Content Include="Examples\Example_Numeric.txt" />
-    <Content Include="Examples\Example_Octets.txt" />
-    <Content Include="Examples\Example_Quality.txt" />
+    <Content Include="Examples\Script_Boolean.txt" />
+    <Content Include="Examples\Script_Dbpos.txt" />
+    <Content Include="Examples\Script_Numeric.txt" />
+    <Content Include="Examples\Script_Octets.txt" />
+    <Content Include="Examples\Script_Quality.txt" />
     <Content Include="Examples\Manual.txt" />
     <None Include="packages.config" />
     <None Include="README.md" />
