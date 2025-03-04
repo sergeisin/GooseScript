@@ -18,6 +18,8 @@
         hasTimeStamp = true
     });
 
+    publisher.SaveSCL("IED1");
+
     publisher.Value = Dbpos.BadState;
     publisher.SendFew(5, 200);
 

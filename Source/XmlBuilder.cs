@@ -6,7 +6,7 @@ namespace GooseScript
 {
     internal static class XmlBuilder
     {
-        public static void SaveSCL(GooseSettings settings, string iedName)
+        public static void SaveSCL(GooseSettings settings, string iedName, string fileName)
         {
             if (string.IsNullOrEmpty(iedName))
             {
@@ -82,8 +82,13 @@ namespace GooseScript
             sb.Replace("_APP_ID_", settings.appID.ToString("X4"));
             sb.Replace("_VLAN_ID_", vlanID.ToString("X3"));
             sb.Replace("_DST_MAC_", settings.dstMac.ToString("X4").Insert(2, "-"));
-            
-            File.WriteAllText("GooseScript.cid", sb.ToString());
+
+            string filePath = fileName ?? "GooseScript.cid";
+
+            if (!filePath.EndsWith(".cid"))
+                filePath += ".cid";
+
+            File.WriteAllText(filePath, sb.ToString());
         }
 
         private static bool TryParseRef(string objRef, string sep, out string ldName, out string name)

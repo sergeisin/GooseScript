@@ -194,9 +194,9 @@ namespace GooseScript
             }
         }
 
-        public void SaveSCL(string iedName)
+        public void SaveSCL(string iedName, string fileName = null)
         {
-            XmlBuilder.SaveSCL(_settings, iedName);
+            XmlBuilder.SaveSCL(_settings, iedName, fileName);
         }
 
         private void OpenDevice()

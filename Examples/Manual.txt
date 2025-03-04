@@ -31,7 +31,9 @@
 
     var pub = new GoosePublisher(sets);         // Publisher object
 
-    pub.SaveSCL(iedName: "IED1");               // Save configuration file (.cid)
+    // Save .cid file
+    pub.SaveSCL("IED1");                        // Arg 1 - iedName 
+    pub.SaveSCL("IED1", "MyFile.cid");          // Arg 2 - fileName (optional)
 
     // Manual sending
     pub.Send();                                 // Send single message

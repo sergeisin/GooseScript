@@ -15,7 +15,7 @@
         initVal = true
     });
 
-    publisher.SaveSCL("IED1");
+    publisher.SaveSCL("IED1", "Example");
     
     publisher.Run(100, 1000);
 
