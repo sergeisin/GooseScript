@@ -53,25 +53,27 @@ namespace GooseScript
             }
             sb.Replace('\'', '"');
 
-            string daType = string.Empty;
+            string daType  = string.Empty;
+            string doClass = string.Empty;
             switch (settings.mmsType)
             {
-                case MMS_TYPE.INT32:   daType = "INT32";   break;
-                case MMS_TYPE.INT32U:  daType = "INT32U";  break;
-                case MMS_TYPE.FLOAT32: daType = "FLOAT32"; break;
-                case MMS_TYPE.BOOLEAN: daType = "BOOLEAN"; break;
+                case MMS_TYPE.INT32:   daType = "INT32";   doClass = "INS"; break;
+                case MMS_TYPE.INT32U:  daType = "INT32U";  doClass = "INS"; break;
+                case MMS_TYPE.FLOAT32: daType = "FLOAT32"; doClass = "SPS"; break;
+                case MMS_TYPE.BOOLEAN: daType = "BOOLEAN"; doClass = "SPS"; break;
 
                 // Next two types are not provided in SCL
 
-                case MMS_TYPE.BIT_STRING:   daType = "Dbpos";   break;
-                case MMS_TYPE.OCTET_STRING: daType = "Octet64"; break;
+                case MMS_TYPE.BIT_STRING:   daType = "Dbpos";   doClass = "DPS"; break;
+                case MMS_TYPE.OCTET_STRING: daType = "Octet64"; doClass = "SPS"; break;
 
                 // SCL type Dbpos mapped on MMS type BIT_STRING
                 // SCL type Octet64 mapped on MMS type OCTET_STRING
             }
-            
+
             var vlanID = settings.hasVlan ? settings.vlanID : 0;
-            
+
+            sb.Replace("_CDC_", doClass);
             sb.Replace("_DA_TYPE_", daType);
             sb.Replace("_LD_NAME_", ldName);
             sb.Replace("_IED_NAME_", iedName);
@@ -128,9 +130,9 @@ namespace GooseScript
         private readonly static string SCL_Template =
 @"<?xml version='1.0' encoding='utf-8'?>
 <SCL xmlns='http://www.iec.ch/61850/2003/SCL' version='2007' revision='B'>
-  <Header id='GooseScript' version='1.2' />
+  <Header id='GooseScript' version='1.2' revision='1' />
   <Communication>
-    <SubNetwork name='SN'>
+    <SubNetwork name='SN' type='8-MMS'>
       <ConnectedAP iedName='_IED_NAME_' apName='AP'>
         <GSE ldInst='_LD_NAME_' cbName='_GOCB_NAME_'>
           <Address>
@@ -146,8 +148,13 @@ namespace GooseScript
     </SubNetwork>
   </Communication>
   <IED name='_IED_NAME_' manufacturer='github:sergeisin' originalSclVersion='2007' originalSclRevision='B'>
+    <Services>
+      <ConfDataSet max='1' maxAttributes='3' />
+      <GOOSE max='1' />
+    </Services>
     <AccessPoint name='AP'>
       <Server>
+        <Authentication />
         <LDevice inst='_LD_NAME_'>
           <LN0 lnType='LN_Type' lnClass='LLN0' inst=''>
             <DataSet name='_DATA_SET_'>_FCDA_
@@ -162,14 +169,13 @@ namespace GooseScript
     <LNodeType id='LN_Type' lnClass='LLN0'>
       <DO type='DO_Type' name='Value' />
     </LNodeType>
-    <DOType id='DO_Type' cdc='SPS'>
-      <DA name='stVal' fc='ST' bType='_DA_TYPE_' />
-      <DA name='q' fc='ST' bType='Quality' />
+    <DOType id='DO_Type' cdc='_CDC_'>
+      <DA name='stVal' fc='ST' bType='_DA_TYPE_' dchg='true' />
+      <DA name='q' fc='ST' bType='Quality' qchg='true' />
       <DA name='t' fc='ST' bType='Timestamp' />
     </DOType>
   </DataTypeTemplates>
-</SCL>
-";
+</SCL>";
 
         #endregion
     }
