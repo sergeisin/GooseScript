@@ -35,9 +35,10 @@
 - [Пример работы с типом Dbpos (положение выключателя) ](Examples/Script_Dbpos.txt)
 - [Пример работы с типом Octet64                       ](Examples/Script_Octets.txt)
 - [Пример работы с типом Quality                       ](Examples/Script_Quality.txt)
+- [Публикация нескольких Goose одновременно            ](Examples/Script_TwoPublishers.txt)
 
 ## Основные объекты
-```
+```C#
 // Объект для хранения настроек публикатора
 var settings = new GooseSettings()
 {
@@ -85,7 +86,7 @@ publisher.Send();
 - Подписка с помошью cid файла и конфигуратора ICT
 
 Сохранение cid-файла:
-```
+```C#
 publisher.SaveSCL("IED1");
 ```
 Важно отметить, что сохранение произойдёт только в том случае, если задаваемые вами значения
@@ -94,14 +95,14 @@ gocbRef и datSet более менее корректны:
 - В качестве DO используется LLN0
 
 ## BOOLEAN
-```
+```C#
 pub.Value = true;
 ...
 pub.Value = !publisher.Value;
 ```
 
 ## INT32 - INT32U - FLOAT32
-```
+```C#
 publisher.Value = 42;
 ...
 publisher.Value++;
@@ -110,7 +111,7 @@ publisher.Value += 1.5;
 ```
 
 ## BIT_STRING
-```
+```C#
 // Dbpos
 pub.Value = Dbpos.Intermediate;
 pub.Value = Dbpos.Off
@@ -127,14 +128,14 @@ pub.Value = "01_0101_0101"; // bits: 10, padding: 6
 ```
 
 ## OCTET_STRING
-```
+```C#
 publisher.Value = "DEAD_BEEF";
 .
 publisher.Value += "BAAD_FOOD";
 ```
 
 ## Runtime operations with 'Quality' data attribute
-```
+```C#
 publisher.Quality = new Quality()
 {
     Validity = Validity.Invalid,
@@ -144,17 +145,17 @@ publisher.Quality = new Quality()
 ```
 
 ## Send single message
-```
+```C#
 publisher.Send();
 ```
 
 ## Send few messages with delay
-```
+```C#
 publisher.SendFew(count, sleepTime);
 ```
 
 ## Retransmission mechanism
-```
+```C#
 publisher.Run(minTime, maxTime);
 
 while(true)
@@ -165,7 +166,7 @@ while(true)
 ```
 
 ## Direct counters update (unsafe)
-```
+```C#
 while(loop)
 {
     pub.Send();
@@ -177,13 +178,13 @@ while(loop)
 
 ## Scripting
 
-```
+```C#
 pub.mmsType = MMS_TYPE.OCTET_STRING
 pub.Value = "c0ffee"
 ```
 
 ## Run publishing
-```
+```C#
 publisher.Run(minTime: 10, maxTime: 1000);
 ```
 
@@ -200,7 +201,7 @@ BOOLEAN / BIT_STRING / INT32 / INT32U / FLOAT32 / OCTET_STRING
 * Собрать Release
 * Для получения одного исполняемого файла можно использовать ilMerge
 
-```
+```Batchfile
 .\ILMerge /target:winexe /out:Out.exe ^
 GooseScript.exe ^
 PacketDotNet.dll ^

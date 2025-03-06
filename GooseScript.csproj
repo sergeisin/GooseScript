@@ -120,12 +120,11 @@
     <Content Include="Examples\Script_Numeric.txt" />
     <Content Include="Examples\Script_Octets.txt" />
     <Content Include="Examples\Script_Quality.txt" />
+    <Content Include="Examples\Script_TwoPublishers.txt" />
     <Content Include="Examples\Manual.txt" />
+    <Content Include="Goose.ico" />
     <None Include="packages.config" />
     <None Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Goose.ico" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Source\MainForm.resx">
