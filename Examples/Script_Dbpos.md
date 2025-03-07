@@ -1,4 +1,6 @@
-// Example : Dbpos
+### Example with MMS type BIT_STRING (IEC type Dbpos)
+
+```C#
 {
     var publisher = new GoosePublisher(new GooseSettings()
     {
@@ -32,3 +34,4 @@
     publisher.Value = Dbpos.On;
     publisher.SendFew(5, 200);
 }
+```

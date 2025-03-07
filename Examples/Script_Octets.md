@@ -1,4 +1,6 @@
-// Example : OCTET_STRING
+### Example with MMS type OCTET_STRING
+
+```C#
 {
     var publisher = new GoosePublisher(new GooseSettings()
     {
@@ -24,3 +26,4 @@
         Timer.Sleep(2500);
     }
 }
+```

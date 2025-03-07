@@ -1,30 +1,33 @@
-// Example : Numeric types INT32 / INT32U / FLOAT32
+### Example with MMS type BOOLEAN
+
+```C#
 {
     var publisher = new GoosePublisher(new GooseSettings()
     {
         interfaceName = "Ethernet",
 
-        dstMac = 0x00E3,
-        appID  = 0xCAFE,
+        dstMac = 0x00E1,
+        appID  = 0xDEAD,
 
         gocbRef = "IED1SYS/LLN0$GO$GSE1",
         datSet  = "IED1SYS/LLN0$DataSet",
         goId    = "IED1SYS/LLN0.GSE1",
 
-        mmsType = MMS_TYPE.INT32,
-        initVal = -10,
-
-        isStruct = true
+        mmsType = MMS_TYPE.BOOLEAN,
+        initVal = true
     });
 
+    publisher.SaveSCL("IED1", "Example");
+    
     publisher.Run(100, 1000);
 
-    for (int i = 0; i < 5; i++)
+    while (true)
     {
         Timer.Sleep(2500);
-        publisher.Value = 32;
+        publisher.Value = false;
 
         Timer.Sleep(2500);
-        publisher.Value += 10;
+        publisher.Value = !publisher.Value;
     }
 }
+```

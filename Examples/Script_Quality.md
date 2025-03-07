@@ -1,4 +1,6 @@
-// Example : Quality
+### Example with Quality change
+
+```C#
 {
     var publisher = new GoosePublisher(new GooseSettings()
     {
@@ -31,3 +33,4 @@
 
     publisher.SendFew(5, 500);
 }
+```

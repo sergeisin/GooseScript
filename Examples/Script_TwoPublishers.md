@@ -1,4 +1,6 @@
-// Example : Two goose publishers
+### Example with two goose publishers
+
+```C#
 {
     var pub_1 = new GoosePublisher(new GooseSettings()
     {
@@ -24,8 +26,9 @@
     bool myVar = true;
     while (true)
     {
-        Timer.Sleep(3000); pub_1.Value = myVar;
-        Timer.Sleep(3000); pub_2.Value = myVar;
+        Timer.Sleep(2500); pub_1.Value = myVar;
+        Timer.Sleep(2500); pub_2.Value = myVar;
         myVar = !myVar;
     }
 }
+```

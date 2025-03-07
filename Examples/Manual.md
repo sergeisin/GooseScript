@@ -1,4 +1,6 @@
-// This example shows all the functionality
+###  This example shows all the functionality
+
+```C#
 {
     var sets = new GooseSettings();             // All settings
 
@@ -87,3 +89,4 @@
     
     pub.Send();
 }
+```

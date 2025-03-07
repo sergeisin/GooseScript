@@ -29,13 +29,13 @@
 ## Примеры
 Код из любого примера можно копировать в редактор скриптов и запустить
 
-- [Описание всех подддерживаемых функций               ](Examples/Manual.txt)
-- [Пример работы с типом Boolean                       ](Examples/Script_Boolean.txt)
-- [Пример работы с численными типами Int и Float       ](Examples/Script_Numeric.txt)
-- [Пример работы с типом Dbpos (положение выключателя) ](Examples/Script_Dbpos.txt)
-- [Пример работы с типом Octet64                       ](Examples/Script_Octets.txt)
-- [Пример работы с типом Quality                       ](Examples/Script_Quality.txt)
-- [Публикация нескольких Goose одновременно            ](Examples/Script_TwoPublishers.txt)
+- [Описание всех подддерживаемых функций               ](Examples/Manual.md)
+- [Пример работы с типом Boolean                       ](Examples/Script_Boolean.md)
+- [Пример работы с численными типами Int и Float       ](Examples/Script_Numeric.md)
+- [Пример работы с типом Dbpos (положение выключателя) ](Examples/Script_Dbpos.md)
+- [Пример работы с типом Octet64                       ](Examples/Script_Octets.md)
+- [Пример работы с типом Quality                       ](Examples/Script_Quality.md)
+- [Публикация нескольких Goose одновременно            ](Examples/Script_TwoPublishers.md)
 
 ## Основные объекты
 ```C#
