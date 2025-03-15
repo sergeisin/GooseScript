@@ -76,7 +76,6 @@
     q.OutofRange      = true;
     q.BadReference    = true;
     q.Oscillatory     = true;
-    q.Oscillatory     = true;
     q.Failure         = true;
     q.OldData         = true;
     q.Inconsistent    = true;

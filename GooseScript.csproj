@@ -125,6 +125,7 @@
     <Content Include="Goose.ico" />
     <None Include="packages.config" />
     <None Include="README.md" />
+    <None Include="Screenshot.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Source\MainForm.resx">
