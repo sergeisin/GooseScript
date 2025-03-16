@@ -65,7 +65,6 @@
     pub.Simulation = true;                      // Set both simulation flags to true
     pub.Send();
     
-    // Quality features
     Quality q = new Quality();
 
     q.Validity = Validity.Good;
@@ -84,7 +83,7 @@
     q.Test            = true;
     q.OperatorBlocked = true;
 
-    pub.Quality = q;
+    pub.Quality = q;                            // Set new Quality
     
     pub.Send();
 }
