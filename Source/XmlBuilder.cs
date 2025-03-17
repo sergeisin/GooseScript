@@ -79,7 +79,7 @@ namespace GooseScript
             sb.Replace("_IED_NAME_", iedName);
             sb.Replace("_DATA_SET_", dataSet);
             sb.Replace("_GOCB_NAME_", goCbName);
-            sb.Replace("_GOID_", settings.goId);
+            sb.Replace("_GOID_", settings.goID);
             sb.Replace("_CONF_REV_", settings.confRev.ToString());
             sb.Replace("_APP_ID_", settings.appID.ToString("X4"));
             sb.Replace("_VLAN_ID_", vlanID.ToString("X3"));

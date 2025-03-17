@@ -42,7 +42,7 @@ namespace GooseScript
         /// <summary>
         /// Goose ID
         /// </summary>
-        public string goId;
+        public string goID;
 
         /// <summary>
         /// Configuration revision. Default - 1.
@@ -124,14 +124,14 @@ namespace GooseScript
                 throw new ArgumentException("'datSet' max length is 129 characters");
             }
 
-            if (goId is null)
+            if (goID is null)
             {
-                throw new ArgumentException("The value 'goId' cannot be null");
+                throw new ArgumentException("The value 'goID' cannot be null");
             }
 
-            if (goId.Length > 129)
+            if (goID.Length > 129)
             {
-                throw new ArgumentException("'goId' max length is 129 characters");
+                throw new ArgumentException("'goID' max length is 129 characters");
             }
 
             switch (mmsType)

@@ -14,7 +14,7 @@
     // GoosePDU settings
     sets.gocbRef = "IED1SYS/LLN0$GO$GSE1";      // MMS-notation GoCB reference
     sets.datSet  = "IED1SYS/LLN0$DataSet";      // MMS-notation DataSet reference
-    sets.goId    = "IED1SYS/LLN0.GSE1";         // Goose ID
+    sets.goID    = "IED1SYS/LLN0.GSE1";         // Goose ID
 
     sets.TAL     =  2000;                       // Time allowed ti live (ms)
     sets.confRev = 10000;                       // Configuration revision

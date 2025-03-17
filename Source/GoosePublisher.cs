@@ -22,7 +22,7 @@ namespace GooseScript
 
             _raw_GoCbRef = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.goCBRef, settings.gocbRef);
             _raw_DatSet  = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.dataSet, settings.datSet);
-            _raw_GoId    = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.goID,    settings.goId);
+            _raw_GoID    = BerEncoder.Create_VisibleString_TLV((byte)ASN1_Tag.goID,    settings.goID);
 
             _appID   = settings.appID;
             _TAL     = settings.TAL;
@@ -156,7 +156,7 @@ namespace GooseScript
                 BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoCbRef);
                 BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.timeAllowedToLive, _TAL);
                 BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_DatSet);
-                BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoId);
+                BerEncoder.Encode_RawBytes    (frame, ref offset, _raw_GoID);
                 BerEncoder.Encode_TimeSt_TLV  (frame, ref offset, (byte)ASN1_Tag.TimeStamp, _timeTicks);
                 BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.stNum, _stNum);
                 BerEncoder.Encode_INT32U_TLV  (frame, ref offset, (byte)ASN1_Tag.sqNum, _sqNum);
@@ -402,8 +402,8 @@ namespace GooseScript
             // Encoded TimeStamp size
             goosePduSize += 10;
 
-            // Encoded GoID size
-            goosePduSize += _raw_GoId.Length;
+            // Encoded goID size
+            goosePduSize += _raw_GoID.Length;
 
             // Encoded datSet size
             goosePduSize += _raw_DatSet.Length;
@@ -515,7 +515,7 @@ namespace GooseScript
         private byte[] _raw_Ethernet;
         private byte[] _raw_GoCbRef;
         private byte[] _raw_DatSet;
-        private byte[] _raw_GoId;
+        private byte[] _raw_GoID;
 
         private byte[] _dataBuf;
         private int    _dataSize;

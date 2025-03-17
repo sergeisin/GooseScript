@@ -7,7 +7,7 @@
         interfaceName = "Ethernet",
         gocbRef = "IED1_SYS/LLN0$GO$GSE1",
         datSet  = "IED1_SYS/LLN0$DataSet",
-        goId    = "Goose 1",
+        goID    = "Goose 1",
         appID   = 0xB1BA
     });
 
@@ -16,7 +16,7 @@
         interfaceName = "Ethernet",
         gocbRef = "IED2_SYS/LLN0$GO$GSE2",
         datSet  = "IED2_SYS/LLN0$DataSet",
-        goId    = "Goose 2",
+        goID    = "Goose 2",
         appID   = 0xB0BA
     });
 

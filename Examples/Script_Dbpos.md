@@ -11,7 +11,7 @@
 
         gocbRef = "IED1SYS/LLN0$GO$GSE1",
         datSet  = "IED1SYS/LLN0$DataSet",
-        goId    = "IED1SYS/LLN0.GSE1",
+        goID    = "IED1SYS/LLN0.GSE1",
 
         vlanID  = 0x005,
         hasVlan = true,
